@@ -94,3 +94,8 @@ Temporary Items
 
 ### build ###
 bin
+
+### CLion ###
+.idea
+
+.clion*
