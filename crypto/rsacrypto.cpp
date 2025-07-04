@@ -100,7 +100,7 @@ std::string RsaCrypto::pub_key_encrypt(std::string data) {
 
     assert(ret == 1);
 
-    unsigned char* out = new unsigned char[outlen];
+    auto out = new unsigned char[outlen];
 
     ret = EVP_PKEY_encrypt(ctx, out, &outlen, reinterpret_cast<const unsigned char*>(data.data()), data.size());
 
@@ -138,7 +138,7 @@ std::string RsaCrypto::pri_key_decrypt(std::string data) {
 
     assert(ret == 1);
 
-    unsigned char* out = new unsigned char[outlen];
+    auto out = new unsigned char[outlen];
 
     ret = EVP_PKEY_decrypt(ctx, out, &outlen, reinterpret_cast<const unsigned char*>(data.data()), data.size());
 
@@ -152,10 +152,10 @@ std::string RsaCrypto::pri_key_decrypt(std::string data) {
     return str;
 }
 
-std::string RsaCrypto::sign(std::string data, QCryptographicHash::Algorithm hash) {
-    QCryptographicHash hash_val(hash);
+std::string RsaCrypto::sign(std::string data, HashType hash) {
+    Hash hash_val(hash);
 
-    hash_val.addData(data);
+    hash_val.add_data(data);
 
     std::string md = hash_val.result();
 
@@ -171,7 +171,7 @@ std::string RsaCrypto::sign(std::string data, QCryptographicHash::Algorithm hash
 
     assert(ret == 1);
 
-    ret = EVP_PKEY_CTX_set_signature_md(ctx, hash_methods_.value(hash)());
+    ret = EVP_PKEY_CTX_set_signature_md(ctx, kHashMethods.at(hash)());
 
     assert(ret == 1);
 
@@ -181,7 +181,7 @@ std::string RsaCrypto::sign(std::string data, QCryptographicHash::Algorithm hash
 
     assert(ret == 1);
 
-    unsigned char* out = new unsigned char[outlen];
+    auto out = new unsigned char[outlen];
 
     ret = EVP_PKEY_sign(ctx, out, &outlen, reinterpret_cast<const unsigned char*>(md.data()), md.size());
 
@@ -196,14 +196,14 @@ std::string RsaCrypto::sign(std::string data, QCryptographicHash::Algorithm hash
     return str;
 }
 
-bool RsaCrypto::verify(std::string sign, std::string data, QCryptographicHash::Algorithm hash) {
+bool RsaCrypto::verify(std::string sign, std::string data, HashType hash) {
     Base64 base64;
 
     sign = base64.decode(sign);
 
-    QCryptographicHash hash_val(hash);
+    Hash hash_val(hash);
 
-    hash_val.addData(data);
+    hash_val.add_data(data);
 
     std::string md = hash_val.result();
 
@@ -219,7 +219,7 @@ bool RsaCrypto::verify(std::string sign, std::string data, QCryptographicHash::A
 
     assert(ret == 1);
 
-    ret = EVP_PKEY_CTX_set_signature_md(ctx, hash_methods_.value(hash)());
+    ret = EVP_PKEY_CTX_set_signature_md(ctx, kHashMethods.at(hash)());
 
     assert(ret == 1);
 

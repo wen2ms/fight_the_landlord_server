@@ -33,10 +33,11 @@ class AesCrypto {
         kEncrypto
     };
 
-    using algorithm_func = const EVP_CIPHER *(*)(void);
+    using algorithm_func = const EVP_CIPHER *(*)();
 
     AesCrypto(Algorithm algorithm, const std::string& key);
-    ~AesCrypto();
+
+    ~AesCrypto() = default;
 
     std::string encrypt(const std::string& text);
     std::string decrypt(const std::string& text);

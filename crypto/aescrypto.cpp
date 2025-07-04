@@ -1,7 +1,10 @@
 #include "aescrypto.h"
 
-#include <assert.h>
 #include <openssl/aes.h>
+
+#include <cassert>
+
+#include "hash.h"
 
 AesCrypto::AesCrypto(Algorithm algorithm, const std::string& key) {
     switch (algorithm) {
@@ -34,8 +37,6 @@ AesCrypto::AesCrypto(Algorithm algorithm, const std::string& key) {
     key_ = key;
 }
 
-AesCrypto::~AesCrypto() {}
-
 std::string AesCrypto::encrypt(const std::string& text) {
     return aes_crypto(text, kEncrypto);
 }
@@ -62,7 +63,7 @@ std::string AesCrypto::aes_crypto(const std::string& text, CryptoType type) {
         length = (length / AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE;
     }
 
-    unsigned char* out = new unsigned char[length];
+    auto out = new unsigned char[length];
     int out_len = 0;
     int total_len = 0;
 
@@ -87,11 +88,11 @@ std::string AesCrypto::aes_crypto(const std::string& text, CryptoType type) {
 }
 
 void AesCrypto::generate_ivec(unsigned char* ivec) {
-    QCryptographicHash hash(QCryptographicHash::Md5);
+    Hash hash(HashType::kMd5);
 
-    hash.addData(key_);
+    hash.add_data(key_);
 
-    std::string str = hash.result().toStdString();
+    std::string str = hash.result(Hash::Type::kBinary);
 
     for (int i = 0; i < AES_BLOCK_SIZE; ++i) {
         ivec[i] = str.at(i);
