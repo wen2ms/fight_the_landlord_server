@@ -1,8 +1,9 @@
 #include "rsacrypto.h"
 
-#include <assert.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
+
+#include <cassert>
 
 #include "base64.h"
 
@@ -132,19 +133,19 @@ std::string RsaCrypto::pri_key_decrypt(std::string data) {
 
     data = base64.decode(data);
 
-    size_t outlen = 0;
+    size_t out_len = 0;
 
-    ret = EVP_PKEY_decrypt(ctx, NULL, &outlen, reinterpret_cast<const unsigned char*>(data.data()), data.size());
-
-    assert(ret == 1);
-
-    auto out = new unsigned char[outlen];
-
-    ret = EVP_PKEY_decrypt(ctx, out, &outlen, reinterpret_cast<const unsigned char*>(data.data()), data.size());
+    ret = EVP_PKEY_decrypt(ctx, NULL, &out_len, reinterpret_cast<const unsigned char*>(data.data()), data.size());
 
     assert(ret == 1);
 
-    std::string str(reinterpret_cast<char*>(out), outlen);
+    auto out = new unsigned char[out_len];
+
+    ret = EVP_PKEY_decrypt(ctx, out, &out_len, reinterpret_cast<const unsigned char*>(data.data()), data.size());
+
+    assert(ret == 1);
+
+    std::string str(reinterpret_cast<char*>(out), out_len);
 
     delete[] out;
     EVP_PKEY_CTX_free(ctx);

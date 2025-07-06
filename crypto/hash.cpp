@@ -41,6 +41,8 @@ std::string Hash::result(Type type) {
         for (int i = 0; i < len; ++i) {
             sprintf(&res[i * 2], "%02x", md[i]);
         }
+
+        return std::string(res, len * 2);
     }
 
     return {reinterpret_cast<char*>(md), len};

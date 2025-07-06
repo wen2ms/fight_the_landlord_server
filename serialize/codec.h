@@ -17,9 +17,9 @@ struct Message {
 
 class Codec {
 public:
-  Codec(Message *msg);
+  explicit Codec(Message *msg);
 
-  Codec(std::string msg);
+  explicit Codec(std::string msg);
 
   std::string encode_msg();
 
