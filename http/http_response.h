@@ -23,11 +23,11 @@ class HttpResponse {
     void add_header(const std::string& key, const std::string& value);
     void prepare_msg(Buffer* send_buf, int socket);
 
-    inline void set_status_code(StatusCode code) {
+    void set_status_code(StatusCode code) {
         status_code_ = code;
     }
 
-    inline void set_file_name(const std::string& name) {
+    void set_file_name(const std::string& name) {
         file_name_ = name;
     }
 

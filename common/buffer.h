@@ -9,11 +9,11 @@ class Buffer {
 
     void extend_room(int size);
 
-    inline int readable_size() {
+    int readable_size() {
         return write_pos_ - read_pos_;
     }
 
-    inline int writable_size() {
+    int writable_size() {
         return capacity_ - write_pos_;
     }
 
@@ -29,11 +29,11 @@ class Buffer {
     char* find_crlf();
     int send_data(int socket);
 
-    inline char* data() {
+    char* data() {
         return data_ + read_pos_;
     }
 
-    inline int read_pos_increase(int count) {
+    int read_pos_increase(int count) {
         read_pos_ += count;
         return read_pos_;
     }

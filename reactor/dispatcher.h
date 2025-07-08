@@ -15,7 +15,8 @@ class Dispatcher {
     virtual int remove();
     virtual int modify();
     virtual int dispatch(int timeout = 2);
-    inline void set_channel(Channel* channel) {
+
+    void set_channel(Channel* channel) {
         channel_ = channel;
     }
 

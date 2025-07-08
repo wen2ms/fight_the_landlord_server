@@ -13,7 +13,7 @@ class WorkerThread {
 
     void run();
 
-    inline EventLoop* get_event_loop() {
+    EventLoop* get_event_loop() {
         return ev_loop_;
     }
 

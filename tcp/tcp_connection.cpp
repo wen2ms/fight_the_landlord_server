@@ -57,7 +57,11 @@ int TcpConnection::process_write(void* arg) {
     if (count > 0) {
         if (conn->write_buf_->readable_size() == 0) {
             conn->channel_->write_event_enable(false);
+            conn->channel_->read_event_enable(true);
+
             conn->ev_loop_->add_task(conn->channel_, ElemType::kModify);
+
+            DEBUG("Send over...");
         }
     }
 

@@ -21,7 +21,7 @@ class HttpRequest {
 
     void reset();
 
-    inline ProcessingStatus get_status() {
+    ProcessingStatus get_status() {
         return cur_status_;
     }
 
@@ -34,19 +34,19 @@ class HttpRequest {
     static void send_dir(const std::string& dir_name, Buffer* send_buf, int cfd);
     static void send_file(const std::string& file_name, Buffer* send_buf, int cfd);
 
-    inline void set_method(const std::string& method) {
+    void set_method(const std::string& method) {
         method_ = method;
     }
 
-    inline void set_url(const std::string& url) {
+    void set_url(const std::string& url) {
         url_ = url;
     }
 
-    inline void set_version(const std::string& version) {
+    void set_version(const std::string& version) {
         version_ = version;
     }
 
-    inline void set_status(ProcessingStatus status) {
+    void set_status(ProcessingStatus status) {
         cur_status_ = status;
     }
 

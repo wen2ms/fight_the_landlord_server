@@ -39,7 +39,7 @@ class EventLoop {
 
     int read_message();
 
-    inline std::thread::id get_thread_id() {
+    std::thread::id get_thread_id() {
         return thread_id_;
     }
 

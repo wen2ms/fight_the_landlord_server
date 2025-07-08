@@ -7,6 +7,8 @@
 #include <sys/uio.h>
 #include <unistd.h>
 
+#include "log.h"
+
 Buffer::Buffer(int size) : capacity_(size), read_pos_(0), write_pos_(0) {
     data_ = (char*)malloc(size);
     bzero(data_, size);
@@ -54,13 +56,16 @@ int Buffer::append_string(const char* data) {
 }
 
 int Buffer::append_string(const std::string& data) {
-    int ret = append_string(data.data());
+    int ret = append_string(data.c_str(), data.length());
 
     return ret;
 }
 int Buffer::append_head(const int length) {
     int len = htonl(length);
-    std::string head = std::to_string(len);
+
+    DEBUG("Recv head len: %d", len);
+
+    std::string head(reinterpret_cast<char*>(&len), sizeof(len));
 
     append_string(head);
 

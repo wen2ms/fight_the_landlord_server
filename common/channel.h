@@ -18,15 +18,18 @@ class Channel {
     void write_event_enable(bool flag);
     bool is_write_event_enable();
 
-    inline int get_event() {
+    void read_event_enable(bool flag);
+    bool is_read_event_enable();
+
+    int get_event() {
         return events_;
     }
 
-    inline int get_socket() {
+    int get_socket() {
         return fd_;
     }
 
-    inline const void* get_arg() {
+    const void* get_arg() {
         return arg_;
     }
 

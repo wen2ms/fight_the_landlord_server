@@ -12,10 +12,22 @@ void Channel::write_event_enable(bool flag) {
     if (flag) {
         events_ |= static_cast<int>(FDEvent::kWriteEvent);
     } else {
-        events_ &= ~static_cast<int>(FDEvent::kReadEvent);
+        events_ &= ~static_cast<int>(FDEvent::kWriteEvent);
     }
 }
 
 bool Channel::is_write_event_enable() {
     return events_ & static_cast<int>(FDEvent::kWriteEvent);
+}
+
+void Channel::read_event_enable(bool flag) {
+    if (flag) {
+        events_ |= static_cast<int>(FDEvent::kReadEvent);
+    } else {
+        events_ &= ~static_cast<int>(FDEvent::kReadEvent);
+    }
+}
+
+bool Channel::is_read_event_enable() {
+    return events_ & static_cast<int>(FDEvent::kReadEvent);
 }

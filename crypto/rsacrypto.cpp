@@ -2,6 +2,7 @@
 
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
+#include <openssl/err.h>
 
 #include <cassert>
 
@@ -185,6 +186,8 @@ std::string RsaCrypto::sign(std::string data, HashType hash) {
     auto out = new unsigned char[outlen];
 
     ret = EVP_PKEY_sign(ctx, out, &outlen, reinterpret_cast<const unsigned char*>(md.data()), md.size());
+
+    ERR_print_errors_fp(stderr);
 
     assert(ret == 1);
 

@@ -51,7 +51,7 @@ class Hash {
     void add_data(std::string data);
     void add_data(const char* data, int length);
 
-    std::string result(Type type = Type::kHex);
+    std::string result(Type type = Type::kBinary);
 
   private:
     EVP_MD_CTX* ctx_;
