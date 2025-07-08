@@ -1,9 +1,10 @@
 #include "buffer.h"
 
+#include <netinet/in.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/uio.h>
 #include <sys/socket.h>
+#include <sys/uio.h>
 #include <unistd.h>
 
 Buffer::Buffer(int size) : capacity_(size), read_pos_(0), write_pos_(0) {
@@ -50,6 +51,27 @@ int Buffer::append_string(const char* data) {
     int size = strlen(data);
     int ret = append_string(data, size);
     return ret;
+}
+
+int Buffer::append_string(const std::string& data) {
+    int ret = append_string(data.data());
+
+    return ret;
+}
+int Buffer::append_head(const int length) {
+    int len = htonl(length);
+    std::string head = std::to_string(len);
+
+    append_string(head);
+
+    return 0;
+}
+int Buffer::append_package(const std::string& data) {
+    append_head(data.length());
+
+    append_string(data);
+
+    return 0;
 }
 
 int Buffer::socket_read(int fd) {

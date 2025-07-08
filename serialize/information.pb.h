@@ -80,12 +80,13 @@ inline bool RequestCode_Parse(
 enum ResponseCode : int {
   LOGIN_OK = 0,
   REGISTER_OK = 1,
+  RSA_DISTRIBUTION = 2,
   ResponseCode_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   ResponseCode_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool ResponseCode_IsValid(int value);
 constexpr ResponseCode ResponseCode_MIN = LOGIN_OK;
-constexpr ResponseCode ResponseCode_MAX = REGISTER_OK;
+constexpr ResponseCode ResponseCode_MAX = RSA_DISTRIBUTION;
 constexpr int ResponseCode_ARRAYSIZE = ResponseCode_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ResponseCode_descriptor();

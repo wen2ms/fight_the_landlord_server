@@ -17,12 +17,12 @@ class TcpConnection {
     static int process_write(void* arg);
     static int destroy(void* arg);
 
+    void prepare_secret_key();
+
   private:
     EventLoop* ev_loop_;
     Channel* channel_;
     Buffer* read_buf_;
     Buffer* write_buf_;
     std::string name_;
-    HttpRequest* request_;
-    HttpResponse* response_;
 };

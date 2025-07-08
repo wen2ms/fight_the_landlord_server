@@ -12,7 +12,8 @@ include_directories(Ï
     ${PROJECT_SOURCE_DIR}/reactor
     ${PROJECT_SOURCE_DIR}/tcp
     ${PROJECT_SOURCE_DIR}/thread
-    ${PROJECT_SOURCE_DIR}/crypto)
+    ${PROJECT_SOURCE_DIR}/crypto
+    ${PROJECT_SOURCE_DIR}/serialize)
 
 add_subdirectory(common)
 add_subdirectory(http)
@@ -20,8 +21,9 @@ add_subdirectory(reactor)
 add_subdirectory(tcp)
 add_subdirectory(thread)
 add_subdirectory(crypto)
+add_subdirectory(serialize)
 
-link_libraries(common http reactor tcp thread crypto)
+link_libraries(common http reactor tcp thread crypto serialize)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 

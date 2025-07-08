@@ -1,10 +1,12 @@
 #include "tcp_server.h"
 
 #include <arpa/inet.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "log.h"
+#include "rsacrypto.h"
 #include "tcp_connection.h"
 
 TcpServer::TcpServer(unsigned short port, int num_threads)
@@ -42,6 +44,13 @@ void TcpServer::set_listen() {
 
 void TcpServer::run() {
     DEBUG("Server started...");
+
+    RsaCrypto* rsa = new RsaCrypto;
+
+    rsa->generate_rsa_key(RsaCrypto::kBits2k);
+
+    delete rsa;
+
     thread_pool_->run();
 
     Channel* channel = new Channel(lfd_, FDEvent::kReadEvent, accept_connection, nullptr, nullptr, this);

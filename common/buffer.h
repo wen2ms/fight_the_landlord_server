@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 class Buffer {
   public:
     Buffer(int size);
@@ -17,6 +19,11 @@ class Buffer {
 
     int append_string(const char* data, int size);
     int append_string(const char* data);
+    int append_string(const std::string& data);
+
+    int append_head(const int length);
+
+    int append_package(const std::string& data);
 
     int socket_read(int fd);
     char* find_crlf();

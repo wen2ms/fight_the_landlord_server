@@ -8,6 +8,7 @@ enum RequestCode {
 enum ResponseCode {
     LOGIN_OK = 0;
     REGISTER_OK = 1;
+    RSA_DISTRIBUTION = 2;
 }
 
 message Information {
