@@ -62,9 +62,9 @@ int TcpConnection::process_read(void* arg) {
     DEBUG("Received http data: %s", conn->read_buf_->data());
 
     if (count > 0) {
-
+        conn->reply_->parse_request(conn->read_buf_);
     } else {
-
+        conn->add_delete_task();
     }
 
     return 0;

@@ -40,7 +40,7 @@ void Communication::handle_aes_distribution(const Message* req_msg, Message& res
 
     hash.add_data(aes_key_);
 
-    std::string res = hash.result();
+    std::string res = hash.result(Hash::Type::kHex);
 
     res_msg.rescode = AES_VERIFY_OK;
 
