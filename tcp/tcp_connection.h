@@ -3,8 +3,7 @@
 #include "event_loop.h"
 #include "buffer.h"
 #include "channel.h"
-#include "http_request.h"
-#include "http_response.h"
+#include "communication.h"
 
 #define MSG_SEND_AUTO
 
@@ -12,6 +11,9 @@ class TcpConnection {
   public:
     TcpConnection(int fd, EventLoop* ev_loop);
     ~TcpConnection();
+
+    void add_write_task(const std::string& data) const;
+    void add_delete_task();
 
     static int process_read(void* arg);
     static int process_write(void* arg);
@@ -25,4 +27,6 @@ class TcpConnection {
     Buffer* read_buf_;
     Buffer* write_buf_;
     std::string name_;
+
+    Communication* reply_;
 };

@@ -1,7 +1,6 @@
 #include "buffer.h"
 
 #include <netinet/in.h>
-#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/uio.h>
@@ -60,6 +59,7 @@ int Buffer::append_string(const std::string& data) {
 
     return ret;
 }
+
 int Buffer::append_head(const int length) {
     int len = htonl(length);
 
@@ -71,6 +71,7 @@ int Buffer::append_head(const int length) {
 
     return 0;
 }
+
 int Buffer::append_package(const std::string& data) {
     append_head(data.length());
 
@@ -106,7 +107,7 @@ int Buffer::socket_read(int fd) {
     return result;
 }
 
-char* Buffer::find_crlf() {
+char* Buffer::find_crlf() const {
     char* ptr = static_cast<char*>(memmem(data_ + read_pos_, readable_size(), "\r\n", 2));
     return ptr;
 }

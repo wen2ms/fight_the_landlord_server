@@ -4,16 +4,16 @@
 
 class Buffer {
   public:
-    Buffer(int size);
+    explicit Buffer(int size);
     ~Buffer();
 
     void extend_room(int size);
 
-    int readable_size() {
+    int readable_size() const {
         return write_pos_ - read_pos_;
     }
 
-    int writable_size() {
+    int writable_size() const {
         return capacity_ - write_pos_;
     }
 
@@ -26,14 +26,22 @@ class Buffer {
     int append_package(const std::string& data);
 
     int socket_read(int fd);
-    char* find_crlf();
+    char* find_crlf() const;
     int send_data(int socket);
 
-    char* data() {
+    char* data() const {
         return data_ + read_pos_;
     }
 
-    int read_pos_increase(int count) {
+    std::string data(const int length) {
+        std::string msg(data(), length);
+
+        read_pos_ += length;
+
+        return msg;
+    }
+
+    int read_pos_increase(const int count) {
         read_pos_ += count;
         return read_pos_;
     }

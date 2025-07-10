@@ -3,12 +3,15 @@ syntax = "proto3";
 enum RequestCode {
     USER_LOGIN = 0;
     REGISTER = 1;
+    AES_DISTRIBUTION = 2;
 }
 
 enum ResponseCode {
     LOGIN_OK = 0;
     REGISTER_OK = 1;
     RSA_DISTRIBUTION = 2;
+    AES_VERIFY_OK = 3;
+    AES_VERIFY_FAILED = 4;
 }
 
 message Information {

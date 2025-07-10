@@ -1,7 +1,6 @@
 #include "tcp_connection.h"
 
 #include <stdio.h>
-#include <stdlib.h>
 
 #include <fstream>
 #include <sstream>
@@ -13,10 +12,16 @@
 TcpConnection::TcpConnection(int fd, EventLoop* ev_loop)
     : ev_loop_(ev_loop),
       channel_(new Channel(fd, FDEvent::kWriteEvent, process_read, process_write, destroy, this)),
+      reply_(new Communication),
       read_buf_(new Buffer(10240)),
       write_buf_(new Buffer(10240)),
       name_("connection_" + std::to_string(fd)) {
     prepare_secret_key();
+
+    auto send_func = std::bind(&TcpConnection::add_write_task, this, std::placeholders::_1);
+    auto delete_func = std::bind(&TcpConnection::add_delete_task, this);
+
+    reply_->set_callbacks(send_func, delete_func);
 
     ev_loop_->add_task(channel_, ElemType::kAdd);
 }
@@ -30,6 +35,22 @@ TcpConnection::~TcpConnection() {
     }
 
     DEBUG("Disconnect and release resources, conn_name: %s", name_.data());
+}
+
+void TcpConnection::add_write_task(const std::string& data) const {
+    write_buf_->append_package(data);
+
+    // channel_->write_event_enable(true);
+    // channel_->read_event_enable(false);
+    // ev_loop_->add_task(channel_, ElemType::kModify);
+
+    write_buf_->send_data(channel_->get_socket());
+}
+
+void TcpConnection::add_delete_task() {
+    ev_loop_->add_task(channel_, ElemType::kDelete);
+
+    DEBUG("Disconnect to client, conn_name = %s", name_.data());
 }
 
 int TcpConnection::process_read(void* arg) {
