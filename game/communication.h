@@ -3,11 +3,14 @@
 
 #include "buffer.h"
 #include "codec.h"
+#include "aescrypto.h"
 
 class Communication {
   public:
     using send_callback = std::function<void(const std::string&)>;
     using delete_callback = std::function<void()>;
+
+    Communication();
 
     void parse_request(Buffer* buf);
 
@@ -19,7 +22,7 @@ class Communication {
     }
 
   private:
-    std::string aes_key_;
+    AesCrypto* aes_crypto_;
 
     send_callback send_message_;
     delete_callback disconnect_;
