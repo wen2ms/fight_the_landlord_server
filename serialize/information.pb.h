@@ -85,12 +85,13 @@ enum ResponseCode : int {
   AES_VERIFY_OK = 3,
   AES_VERIFY_FAILED = 4,
   REGISTER_FAILED = 5,
+  LOGIN_FAILED = 6,
   ResponseCode_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   ResponseCode_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool ResponseCode_IsValid(int value);
 constexpr ResponseCode ResponseCode_MIN = LOGIN_OK;
-constexpr ResponseCode ResponseCode_MAX = REGISTER_FAILED;
+constexpr ResponseCode ResponseCode_MAX = LOGIN_FAILED;
 constexpr int ResponseCode_ARRAYSIZE = ResponseCode_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ResponseCode_descriptor();

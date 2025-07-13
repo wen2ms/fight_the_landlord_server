@@ -19,6 +19,8 @@ class Communication {
 
     void handle_register(const Message* req_msg, Message& res_msg);
 
+    void handle_login(const Message* req_msg, Message& res_msg);
+
     void set_callbacks(const send_callback& send_func, const delete_callback& delete_func) {
         send_message_ = send_func;
         disconnect_ = delete_func;

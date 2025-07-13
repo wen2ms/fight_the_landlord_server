@@ -13,6 +13,7 @@ enum ResponseCode {
     AES_VERIFY_OK = 3;
     AES_VERIFY_FAILED = 4;
     REGISTER_FAILED = 5;
+    LOGIN_FAILED = 6;
 }
 
 message Information {

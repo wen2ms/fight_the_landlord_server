@@ -28,6 +28,7 @@ void Communication::parse_request(Buffer* buf) {
 
     switch (ptr->reqcode) {
         case USER_LOGIN:
+            handle_login(ptr.get(), res_msg);
             break;
         case REGISTER:
             handle_register(ptr.get(), res_msg);
@@ -100,4 +101,38 @@ void Communication::handle_register(const Message* req_msg, Message& res_msg) {
         res_msg.rescode = REGISTER_FAILED;
         res_msg.data1 = "Name duplicated, register failed";
     }
+}
+
+void Communication::handle_login(const Message* req_msg, Message& res_msg) {
+    char sql[1024];
+
+    sprintf(sql,
+            "SELECT EXISTS ("
+            "SELECT 1 FROM user "
+            "JOIN information ON user.name = information.name "
+            "WHERE user.name = '%s' AND user.password = '%s' AND information.status = 0);",
+            req_msg->user_name.data(), req_msg->data1.data());
+
+    bool success = mysql_conn_->query(sql);
+
+    if (success && mysql_conn_->next()) {
+        mysql_conn_->transaction();
+
+        sprintf(sql, "UPDATE information SET status = 1 WHERE name = '%s';", req_msg->user_name.data());
+
+        success = mysql_conn_->update(sql);
+
+        if (success) {
+            mysql_conn_->commit();
+
+            res_msg.rescode = LOGIN_OK;
+
+            return;
+        }
+
+        mysql_conn_->rollback();
+    }
+
+    res_msg.rescode = LOGIN_FAILED;
+    res_msg.data1 = "Login failed...";
 }
