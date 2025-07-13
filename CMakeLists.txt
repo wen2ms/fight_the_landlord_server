@@ -14,6 +14,7 @@ include_directories(Ï
     ${PROJECT_SOURCE_DIR}/thread
     ${PROJECT_SOURCE_DIR}/crypto
     ${PROJECT_SOURCE_DIR}/serialize
+    ${PROJECT_SOURCE_DIR}/database
     ${PROJECT_SOURCE_DIR}/game)
 
 add_subdirectory(common)
@@ -24,8 +25,9 @@ add_subdirectory(thread)
 add_subdirectory(crypto)
 add_subdirectory(serialize)
 add_subdirectory(game)
+add_subdirectory(database)
 
-link_libraries(common http reactor tcp thread crypto serialize game)
+link_libraries(common http reactor tcp thread crypto serialize game database)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 

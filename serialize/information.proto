@@ -12,6 +12,7 @@ enum ResponseCode {
     RSA_DISTRIBUTION = 2;
     AES_VERIFY_OK = 3;
     AES_VERIFY_FAILED = 4;
+    REGISTER_FAILED = 5;
 }
 
 message Information {

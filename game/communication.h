@@ -4,6 +4,7 @@
 #include "buffer.h"
 #include "codec.h"
 #include "aescrypto.h"
+#include "mysql_connection.h"
 
 class Communication {
   public:
@@ -16,6 +17,8 @@ class Communication {
 
     void handle_aes_distribution(const Message* req_msg, Message& res_msg);
 
+    void handle_register(const Message* req_msg, Message& res_msg);
+
     void set_callbacks(const send_callback& send_func, const delete_callback& delete_func) {
         send_message_ = send_func;
         disconnect_ = delete_func;
@@ -26,6 +29,8 @@ class Communication {
 
     send_callback send_message_;
     delete_callback disconnect_;
+
+    MysqlConnection* mysql_conn_;
 };
 
 #endif  // COMMUNICATION_H

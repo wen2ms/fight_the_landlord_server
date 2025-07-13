@@ -5,7 +5,11 @@
 #include "log.h"
 #include "rsacrypto.h"
 
-Communication::Communication() : aes_crypto_(nullptr) {}
+Communication::Communication() : aes_crypto_(nullptr), mysql_conn_(new MysqlConnection) {
+    bool success = mysql_conn_->connect("root", "<password>", "test", "localhost");
+
+    assert(success);
+}
 
 void Communication::parse_request(Buffer* buf) {
     std::string data = buf->data(sizeof(int));
@@ -26,6 +30,7 @@ void Communication::parse_request(Buffer* buf) {
         case USER_LOGIN:
             break;
         case REGISTER:
+            handle_register(ptr.get(), res_msg);
             break;
         case AES_DISTRIBUTION:
             handle_aes_distribution(ptr.get(), res_msg);
@@ -59,5 +64,40 @@ void Communication::handle_aes_distribution(const Message* req_msg, Message& res
 
         res_msg.rescode = AES_VERIFY_FAILED;
         res_msg.data1 = "Aes verify failed...";
+    }
+}
+
+void Communication::handle_register(const Message* req_msg, Message& res_msg) {
+    char sql[1024];
+
+    sprintf(sql, "SELECT name, password, phone, date FROM user WHERE name = '%s';", req_msg->user_name.data());
+
+    bool success = mysql_conn_->query(sql);
+
+    if (success && !mysql_conn_->next()) {
+        mysql_conn_->transaction();
+
+        sprintf(sql, "INSERT INTO user (name, password, phone, date) VALUES ('%s', '%s', '%s', NOW());",
+                req_msg->user_name.data(), req_msg->data1.data(), req_msg->data2.data());
+
+        bool success_user = mysql_conn_->update(sql);
+
+        sprintf(sql, "INSERT INTO information (name, score, status) VALUES ('%s', 0, 0);", req_msg->user_name.data());
+
+        bool success_info = mysql_conn_->update(sql);
+
+        if (success_user && success_info) {
+            mysql_conn_->commit();
+
+            res_msg.rescode = REGISTER_OK;
+        } else {
+            mysql_conn_->rollback();
+
+            res_msg.rescode = REGISTER_FAILED;
+            res_msg.data1 = "Insert into database failed";
+        }
+    } else {
+        res_msg.rescode = REGISTER_FAILED;
+        res_msg.data1 = "Name duplicated, register failed";
     }
 }

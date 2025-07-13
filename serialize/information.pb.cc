@@ -70,14 +70,15 @@ const char descriptor_table_protodef_information_2eproto[] PROTOBUF_SECTION_VARI
   " \001(\t\022\r\n\005data3\030\004 \001(\t\022\035\n\007reqcode\030\005 \001(\0162\014.R"
   "equestCode\022\036\n\007rescode\030\006 \001(\0162\r.ResponseCo"
   "de*A\n\013RequestCode\022\016\n\nUSER_LOGIN\020\000\022\014\n\010REG"
-  "ISTER\020\001\022\024\n\020AES_DISTRIBUTION\020\002*m\n\014Respons"
-  "eCode\022\014\n\010LOGIN_OK\020\000\022\017\n\013REGISTER_OK\020\001\022\024\n\020"
-  "RSA_DISTRIBUTION\020\002\022\021\n\rAES_VERIFY_OK\020\003\022\025\n"
-  "\021AES_VERIFY_FAILED\020\004b\006proto3"
+  "ISTER\020\001\022\024\n\020AES_DISTRIBUTION\020\002*\202\001\n\014Respon"
+  "seCode\022\014\n\010LOGIN_OK\020\000\022\017\n\013REGISTER_OK\020\001\022\024\n"
+  "\020RSA_DISTRIBUTION\020\002\022\021\n\rAES_VERIFY_OK\020\003\022\025"
+  "\n\021AES_VERIFY_FAILED\020\004\022\023\n\017REGISTER_FAILED"
+  "\020\005b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_information_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_information_2eproto = {
-    false, false, 348, descriptor_table_protodef_information_2eproto,
+    false, false, 370, descriptor_table_protodef_information_2eproto,
     "information.proto",
     &descriptor_table_information_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_information_2eproto::offsets,
@@ -116,6 +117,7 @@ bool ResponseCode_IsValid(int value) {
     case 2:
     case 3:
     case 4:
+    case 5:
       return true;
     default:
       return false;
