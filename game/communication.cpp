@@ -2,11 +2,15 @@
 
 #include <netinet/in.h>
 
+#include "json_parse.h"
 #include "log.h"
 #include "rsacrypto.h"
 
 Communication::Communication() : aes_crypto_(nullptr), mysql_conn_(new MysqlConnection) {
-    bool success = mysql_conn_->connect("root", "<password>", "test", "localhost");
+    JsonParse json;
+    std::shared_ptr<DBInfo> info = json.get_database_info(JsonParse::kMysql);
+
+    bool success = mysql_conn_->connect(info->user, info->password, info->db_name, info->ip, info->port);
 
     assert(success);
 }
@@ -107,10 +111,8 @@ void Communication::handle_login(const Message* req_msg, Message& res_msg) {
     char sql[1024];
 
     sprintf(sql,
-            "SELECT EXISTS ("
-            "SELECT 1 FROM user "
-            "JOIN information ON user.name = information.name "
-            "WHERE user.name = '%s' AND user.password = '%s' AND information.status = 0);",
+            "SELECT user.name FROM user JOIN information ON user.name = information.name AND information.status = 0 WHERE "
+            "user.name = '%s' AND user.password = '%s';",
             req_msg->user_name.data(), req_msg->data1.data());
 
     bool success = mysql_conn_->query(sql);

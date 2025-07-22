@@ -11,7 +11,7 @@ struct DBInfo {
     unsigned short port;
     std::string user;
     std::string password;
-    std::string dbname;
+    std::string db_name;
 };
 
 class JsonParse {
@@ -21,7 +21,7 @@ class JsonParse {
         kRedis
     };
 
-    JsonParse(std::string file_name = "../config/config.json");
+    explicit JsonParse(const std::string& file_name = "/home/ecs-user/Codes/fight_the_landlord_server/config/config.json");
 
     std::shared_ptr<DBInfo> get_database_info(DBType type);
 

@@ -3,7 +3,7 @@
 #include <cassert>
 #include <fstream>
 
-JsonParse::JsonParse(std::string file_name) {
+JsonParse::JsonParse(const std::string& file_name) {
     std::ifstream infile_stream(file_name);
 
     assert(infile_stream.is_open());
@@ -26,7 +26,7 @@ std::shared_ptr<DBInfo> JsonParse::get_database_info(DBType type) {
     if (type == kMysql) {
         info->user = node["user"].asString();
         info->password = node["password"].asString();
-        info->dbname = node["dbname"].asString();
+        info->db_name = node["db_name"].asString();
     }
 
     return std::shared_ptr<DBInfo>(info);
