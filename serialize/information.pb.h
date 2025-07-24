@@ -86,7 +86,7 @@ enum ResponseCode : int {
   REGISTER_OK = 1,
   RSA_DISTRIBUTION = 2,
   AES_VERIFY_OK = 3,
-  JOIN_GAME_OK = 4,
+  JOIN_ROOM_OK = 4,
   START_GAME = 5,
   SEARCH_ROOM_OK = 6,
   FAILED = 7,

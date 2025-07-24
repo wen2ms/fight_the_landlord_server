@@ -57,6 +57,9 @@ void Communication::parse_request(Buffer* buf) {
         case AES_DISTRIBUTION:
             handle_aes_distribution(ptr.get(), res_msg);
             break;
+        case AUTO_CREATE_ROOM:
+        case MANUAL_CREATE_ROOM:
+            break;
         default:
             break;
     }
@@ -156,4 +159,40 @@ void Communication::handle_login(const Message* req_msg, Message& res_msg) {
 
     res_msg.rescode = FAILED;
     res_msg.data1 = "Login failed...";
+}
+
+void Communication::handle_add_room(const Message* req_msg, Message& res_msg) {
+    std::string user_name = req_msg->user_name;
+    std::string old_room_name = redis_->get_player_room_name(user_name);
+    int score = redis_->get_player_score(old_room_name, user_name);
+    bool join_success = true;
+    std::string room_name;
+
+    if (req_msg->reqcode == AUTO_CREATE_ROOM) {
+        room_name = redis_->join_room(user_name);
+    } else {
+        room_name = req_msg->room_name;
+        join_success = redis_->join_room(user_name, room_name);
+    }
+
+    if (join_success) {
+        if (score == 0) {
+            std::string sql = "SELECT score FROM information WHERE name = '" + user_name + "';";
+            bool query_success = mysql_conn_->query(sql);
+
+            assert(query_success);
+
+            mysql_conn_->next();
+            score = std::stoi(mysql_conn_->value(0));
+        }
+
+        redis_->update_player_score(room_name, user_name, score);
+
+        res_msg.rescode = JOIN_ROOM_OK;
+        res_msg.data1 = std::to_string(redis_->get_nums_players(room_name));
+        res_msg.room_name = room_name;
+    } else {
+        res_msg.rescode = FAILED;
+        res_msg.data1 = "Sorry, failed to join room, room is full";
+    }
 }
