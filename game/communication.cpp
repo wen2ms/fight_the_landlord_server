@@ -86,7 +86,7 @@ void Communication::handle_aes_distribution(const Message* req_msg, Message& res
     } else {
         DEBUG("Private key verify failed!");
 
-        res_msg.rescode = AES_VERIFY_FAILED;
+        res_msg.rescode = FAILED;
         res_msg.data1 = "Aes verify failed...";
     }
 }
@@ -117,11 +117,11 @@ void Communication::handle_register(const Message* req_msg, Message& res_msg) {
         } else {
             mysql_conn_->rollback();
 
-            res_msg.rescode = REGISTER_FAILED;
+            res_msg.rescode = FAILED;
             res_msg.data1 = "Insert into database failed";
         }
     } else {
-        res_msg.rescode = REGISTER_FAILED;
+        res_msg.rescode = FAILED;
         res_msg.data1 = "Name duplicated, register failed";
     }
 }
@@ -154,6 +154,6 @@ void Communication::handle_login(const Message* req_msg, Message& res_msg) {
         mysql_conn_->rollback();
     }
 
-    res_msg.rescode = LOGIN_FAILED;
+    res_msg.rescode = FAILED;
     res_msg.data1 = "Login failed...";
 }

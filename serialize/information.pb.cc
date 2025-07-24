@@ -23,6 +23,7 @@ namespace _pbi = _pb::internal;
 PROTOBUF_CONSTEXPR Information::Information(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.user_name_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.room_name_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.data1_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.data2_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.data3_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
@@ -50,6 +51,7 @@ const uint32_t TableStruct_information_2eproto::offsets[] PROTOBUF_SECTION_VARIA
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::Information, _impl_.user_name_),
+  PROTOBUF_FIELD_OFFSET(::Information, _impl_.room_name_),
   PROTOBUF_FIELD_OFFSET(::Information, _impl_.data1_),
   PROTOBUF_FIELD_OFFSET(::Information, _impl_.data2_),
   PROTOBUF_FIELD_OFFSET(::Information, _impl_.data3_),
@@ -65,20 +67,22 @@ static const ::_pb::Message* const file_default_instances[] = {
 };
 
 const char descriptor_table_protodef_information_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\021information.proto\"\214\001\n\013Information\022\021\n\tu"
-  "ser_name\030\001 \001(\t\022\r\n\005data1\030\002 \001(\t\022\r\n\005data2\030\003"
-  " \001(\t\022\r\n\005data3\030\004 \001(\t\022\035\n\007reqcode\030\005 \001(\0162\014.R"
-  "equestCode\022\036\n\007rescode\030\006 \001(\0162\r.ResponseCo"
-  "de*A\n\013RequestCode\022\016\n\nUSER_LOGIN\020\000\022\014\n\010REG"
-  "ISTER\020\001\022\024\n\020AES_DISTRIBUTION\020\002*\224\001\n\014Respon"
-  "seCode\022\014\n\010LOGIN_OK\020\000\022\017\n\013REGISTER_OK\020\001\022\024\n"
-  "\020RSA_DISTRIBUTION\020\002\022\021\n\rAES_VERIFY_OK\020\003\022\025"
-  "\n\021AES_VERIFY_FAILED\020\004\022\023\n\017REGISTER_FAILED"
-  "\020\005\022\020\n\014LOGIN_FAILED\020\006b\006proto3"
+  "\n\021information.proto\"\237\001\n\013Information\022\021\n\tu"
+  "ser_name\030\001 \001(\t\022\021\n\troom_name\030\002 \001(\t\022\r\n\005dat"
+  "a1\030\003 \001(\t\022\r\n\005data2\030\004 \001(\t\022\r\n\005data3\030\005 \001(\t\022\035"
+  "\n\007reqcode\030\006 \001(\0162\014.RequestCode\022\036\n\007rescode"
+  "\030\007 \001(\0162\r.ResponseCode*\200\001\n\013RequestCode\022\016\n"
+  "\nUSER_LOGIN\020\000\022\014\n\010REGISTER\020\001\022\024\n\020AES_DISTR"
+  "IBUTION\020\002\022\024\n\020AUTO_CREATE_ROOM\020\003\022\026\n\022MANUA"
+  "L_CREATE_ROOM\020\004\022\017\n\013SEARCH_ROOM\020\005*\230\001\n\014Res"
+  "ponseCode\022\014\n\010LOGIN_OK\020\000\022\017\n\013REGISTER_OK\020\001"
+  "\022\024\n\020RSA_DISTRIBUTION\020\002\022\021\n\rAES_VERIFY_OK\020"
+  "\003\022\020\n\014JOIN_GAME_OK\020\004\022\016\n\nSTART_GAME\020\005\022\022\n\016S"
+  "EARCH_ROOM_OK\020\006\022\n\n\006FAILED\020\007b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_information_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_information_2eproto = {
-    false, false, 388, descriptor_table_protodef_information_2eproto,
+    false, false, 475, descriptor_table_protodef_information_2eproto,
     "information.proto",
     &descriptor_table_information_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_information_2eproto::offsets,
@@ -100,6 +104,9 @@ bool RequestCode_IsValid(int value) {
     case 0:
     case 1:
     case 2:
+    case 3:
+    case 4:
+    case 5:
       return true;
     default:
       return false;
@@ -119,6 +126,7 @@ bool ResponseCode_IsValid(int value) {
     case 4:
     case 5:
     case 6:
+    case 7:
       return true;
     default:
       return false;
@@ -143,6 +151,7 @@ Information::Information(const Information& from)
   Information* const _this = this; (void)_this;
   new (&_impl_) Impl_{
       decltype(_impl_.user_name_){}
+    , decltype(_impl_.room_name_){}
     , decltype(_impl_.data1_){}
     , decltype(_impl_.data2_){}
     , decltype(_impl_.data3_){}
@@ -157,6 +166,14 @@ Information::Information(const Information& from)
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_user_name().empty()) {
     _this->_impl_.user_name_.Set(from._internal_user_name(), 
+      _this->GetArenaForAllocation());
+  }
+  _impl_.room_name_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.room_name_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_room_name().empty()) {
+    _this->_impl_.room_name_.Set(from._internal_room_name(), 
       _this->GetArenaForAllocation());
   }
   _impl_.data1_.InitDefault();
@@ -195,6 +212,7 @@ inline void Information::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.user_name_){}
+    , decltype(_impl_.room_name_){}
     , decltype(_impl_.data1_){}
     , decltype(_impl_.data2_){}
     , decltype(_impl_.data3_){}
@@ -205,6 +223,10 @@ inline void Information::SharedCtor(
   _impl_.user_name_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.user_name_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.room_name_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.room_name_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   _impl_.data1_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -232,6 +254,7 @@ Information::~Information() {
 inline void Information::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   _impl_.user_name_.Destroy();
+  _impl_.room_name_.Destroy();
   _impl_.data1_.Destroy();
   _impl_.data2_.Destroy();
   _impl_.data3_.Destroy();
@@ -248,6 +271,7 @@ void Information::Clear() {
   (void) cached_has_bits;
 
   _impl_.user_name_.ClearToEmpty();
+  _impl_.room_name_.ClearToEmpty();
   _impl_.data1_.ClearToEmpty();
   _impl_.data2_.ClearToEmpty();
   _impl_.data3_.ClearToEmpty();
@@ -273,9 +297,19 @@ const char* Information::_InternalParse(const char* ptr, ::_pbi::ParseContext* c
         } else
           goto handle_unusual;
         continue;
-      // string data1 = 2;
+      // string room_name = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+          auto str = _internal_mutable_room_name();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "Information.room_name"));
+        } else
+          goto handle_unusual;
+        continue;
+      // string data1 = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_data1();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -283,9 +317,9 @@ const char* Information::_InternalParse(const char* ptr, ::_pbi::ParseContext* c
         } else
           goto handle_unusual;
         continue;
-      // string data2 = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+      // string data2 = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           auto str = _internal_mutable_data2();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -293,9 +327,9 @@ const char* Information::_InternalParse(const char* ptr, ::_pbi::ParseContext* c
         } else
           goto handle_unusual;
         continue;
-      // string data3 = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+      // string data3 = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           auto str = _internal_mutable_data3();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -303,18 +337,18 @@ const char* Information::_InternalParse(const char* ptr, ::_pbi::ParseContext* c
         } else
           goto handle_unusual;
         continue;
-      // .RequestCode reqcode = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
+      // .RequestCode reqcode = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_reqcode(static_cast<::RequestCode>(val));
         } else
           goto handle_unusual;
         continue;
-      // .ResponseCode rescode = 6;
-      case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
+      // .ResponseCode rescode = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 56)) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_rescode(static_cast<::ResponseCode>(val));
@@ -360,48 +394,58 @@ uint8_t* Information::_InternalSerialize(
         1, this->_internal_user_name(), target);
   }
 
-  // string data1 = 2;
+  // string room_name = 2;
+  if (!this->_internal_room_name().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_room_name().data(), static_cast<int>(this->_internal_room_name().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "Information.room_name");
+    target = stream->WriteStringMaybeAliased(
+        2, this->_internal_room_name(), target);
+  }
+
+  // string data1 = 3;
   if (!this->_internal_data1().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_data1().data(), static_cast<int>(this->_internal_data1().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "Information.data1");
     target = stream->WriteStringMaybeAliased(
-        2, this->_internal_data1(), target);
+        3, this->_internal_data1(), target);
   }
 
-  // string data2 = 3;
+  // string data2 = 4;
   if (!this->_internal_data2().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_data2().data(), static_cast<int>(this->_internal_data2().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "Information.data2");
     target = stream->WriteStringMaybeAliased(
-        3, this->_internal_data2(), target);
+        4, this->_internal_data2(), target);
   }
 
-  // string data3 = 4;
+  // string data3 = 5;
   if (!this->_internal_data3().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_data3().data(), static_cast<int>(this->_internal_data3().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "Information.data3");
     target = stream->WriteStringMaybeAliased(
-        4, this->_internal_data3(), target);
+        5, this->_internal_data3(), target);
   }
 
-  // .RequestCode reqcode = 5;
+  // .RequestCode reqcode = 6;
   if (this->_internal_reqcode() != 0) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteEnumToArray(
-      5, this->_internal_reqcode(), target);
+      6, this->_internal_reqcode(), target);
   }
 
-  // .ResponseCode rescode = 6;
+  // .ResponseCode rescode = 7;
   if (this->_internal_rescode() != 0) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteEnumToArray(
-      6, this->_internal_rescode(), target);
+      7, this->_internal_rescode(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -427,34 +471,41 @@ size_t Information::ByteSizeLong() const {
         this->_internal_user_name());
   }
 
-  // string data1 = 2;
+  // string room_name = 2;
+  if (!this->_internal_room_name().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_room_name());
+  }
+
+  // string data1 = 3;
   if (!this->_internal_data1().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_data1());
   }
 
-  // string data2 = 3;
+  // string data2 = 4;
   if (!this->_internal_data2().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_data2());
   }
 
-  // string data3 = 4;
+  // string data3 = 5;
   if (!this->_internal_data3().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_data3());
   }
 
-  // .RequestCode reqcode = 5;
+  // .RequestCode reqcode = 6;
   if (this->_internal_reqcode() != 0) {
     total_size += 1 +
       ::_pbi::WireFormatLite::EnumSize(this->_internal_reqcode());
   }
 
-  // .ResponseCode rescode = 6;
+  // .ResponseCode rescode = 7;
   if (this->_internal_rescode() != 0) {
     total_size += 1 +
       ::_pbi::WireFormatLite::EnumSize(this->_internal_rescode());
@@ -480,6 +531,9 @@ void Information::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PR
 
   if (!from._internal_user_name().empty()) {
     _this->_internal_set_user_name(from._internal_user_name());
+  }
+  if (!from._internal_room_name().empty()) {
+    _this->_internal_set_room_name(from._internal_room_name());
   }
   if (!from._internal_data1().empty()) {
     _this->_internal_set_data1(from._internal_data1());
@@ -518,6 +572,10 @@ void Information::InternalSwap(Information* other) {
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.user_name_, lhs_arena,
       &other->_impl_.user_name_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.room_name_, lhs_arena,
+      &other->_impl_.room_name_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.data1_, lhs_arena,
