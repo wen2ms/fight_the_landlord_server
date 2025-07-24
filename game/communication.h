@@ -5,6 +5,7 @@
 #include "codec.h"
 #include "aescrypto.h"
 #include "mysql_connection.h"
+#include "room.h"
 
 class Communication {
   public:
@@ -12,6 +13,8 @@ class Communication {
     using delete_callback = std::function<void()>;
 
     Communication();
+
+    ~Communication();
 
     void parse_request(Buffer* buf);
 
@@ -33,6 +36,7 @@ class Communication {
     delete_callback disconnect_;
 
     MysqlConnection* mysql_conn_;
+    Room* redis_;
 };
 
 #endif  // COMMUNICATION_H

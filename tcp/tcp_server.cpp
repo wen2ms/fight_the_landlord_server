@@ -1,13 +1,17 @@
 #include "tcp_server.h"
 
 #include <arpa/inet.h>
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+
+#include <fstream>
+#include <sstream>
 
 #include "log.h"
 #include "rsacrypto.h"
 #include "tcp_connection.h"
+#include "room.h"
 
 TcpServer::TcpServer(unsigned short port, int num_threads)
     : main_loop_(new EventLoop), num_threads_(num_threads), port_(port), thread_pool_(new ThreadPool(main_loop_, num_threads)) {
@@ -45,11 +49,7 @@ void TcpServer::set_listen() {
 void TcpServer::run() {
     DEBUG("Server started...");
 
-    RsaCrypto* rsa = new RsaCrypto;
-
-    rsa->generate_rsa_key(RsaCrypto::kBits2k);
-
-    delete rsa;
+    save_rsa_key();
 
     thread_pool_->run();
 
@@ -67,4 +67,34 @@ int TcpServer::accept_connection(void* arg) {
     TcpConnection* conn = new TcpConnection(cfd, ev_loop);
 
     return 0;
+}
+
+void TcpServer::save_rsa_key() {
+    RsaCrypto* rsa = new RsaCrypto;
+
+    rsa->generate_rsa_key(RsaCrypto::kBits2k);
+    delete rsa;
+
+    std::ifstream infile("public.pem");
+    std::stringstream line_stream;
+
+    line_stream << infile.rdbuf();
+
+    std::string data = line_stream.str();
+
+    infile.close();
+
+    Room redis;
+
+    assert(redis.init_environment());
+    redis.clear();
+    redis.save_rsa_key("public_key", data);
+
+    infile.open("private.pem");
+    line_stream << infile.rdbuf();
+    data = line_stream.str();
+    redis.save_rsa_key("private_key", data);
+
+    unlink("public.pem");
+    unlink("private.pem");
 }

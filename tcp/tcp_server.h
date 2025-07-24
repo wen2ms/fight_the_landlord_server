@@ -12,6 +12,8 @@ class TcpServer {
 
     static int accept_connection(void* arg);
 
+    void save_rsa_key();
+
   private:    
     int num_threads_;
     EventLoop* main_loop_;

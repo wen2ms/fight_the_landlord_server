@@ -8,4 +8,4 @@ aux_source_directory(./ SRC)
 
 add_library(game ${SRC})
 
-target_link_libraries(game crypto)
+target_link_libraries(game crypto redis++)

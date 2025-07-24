@@ -6,8 +6,9 @@
 #include <sstream>
 
 #include "codec.h"
-#include "rsacrypto.h"
 #include "log.h"
+#include "rsacrypto.h"
+#include "room.h"
 
 TcpConnection::TcpConnection(int fd, EventLoop* ev_loop)
     : ev_loop_(ev_loop),
@@ -98,20 +99,21 @@ int TcpConnection::destroy(void* arg) {
     return 0;
 }
 void TcpConnection::prepare_secret_key() {
-    std::ifstream infile("public.pem");
-    std::stringstream line_stream;
+    Room redis;
 
-    line_stream << infile.rdbuf();
+    redis.init_environment();
 
-    std::string data = line_stream.str();
+    std::string public_key = redis.rsa_key("public_key");
     Message msg;
 
     msg.rescode = RSA_DISTRIBUTION;
-    msg.data1 = data;
+    msg.data1 = public_key;
 
-    RsaCrypto rsa("private.pem", RsaCrypto::kPrivateKey);
+    RsaCrypto rsa;
 
-    data = rsa.sign(data);
+    rsa.prase_string_to_key(redis.rsa_key("private_key"), RsaCrypto::kPrivateKey);
+
+    std::string data = rsa.sign(public_key);
 
     msg.data2 = data;
 

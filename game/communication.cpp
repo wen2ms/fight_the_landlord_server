@@ -13,6 +13,23 @@ Communication::Communication() : aes_crypto_(nullptr), mysql_conn_(new MysqlConn
     bool success = mysql_conn_->connect(info->user, info->password, info->db_name, info->ip, info->port);
 
     assert(success);
+
+    redis_ = new Room;
+    assert(redis_->init_environment());
+}
+
+Communication::~Communication() {
+    if (redis_ != nullptr) {
+        delete redis_;
+    }
+
+    if (aes_crypto_ != nullptr) {
+        delete aes_crypto_;
+    }
+
+    if (mysql_conn_ != nullptr) {
+        delete mysql_conn_;
+    }
 }
 
 void Communication::parse_request(Buffer* buf) {
@@ -48,7 +65,9 @@ void Communication::parse_request(Buffer* buf) {
     send_message_(codec.encode_msg());
 }
 void Communication::handle_aes_distribution(const Message* req_msg, Message& res_msg) {
-    RsaCrypto rsa("private.pem", RsaCrypto::kPrivateKey);
+    RsaCrypto rsa;
+
+    rsa.prase_string_to_key(redis_->rsa_key("private_key"), RsaCrypto::kPrivateKey);
 
     std::string aes_key = rsa.pri_key_decrypt(req_msg->data1);
 
