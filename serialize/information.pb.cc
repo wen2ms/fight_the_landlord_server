@@ -74,15 +74,16 @@ const char descriptor_table_protodef_information_2eproto[] PROTOBUF_SECTION_VARI
   "\030\007 \001(\0162\r.ResponseCode*\200\001\n\013RequestCode\022\016\n"
   "\nUSER_LOGIN\020\000\022\014\n\010REGISTER\020\001\022\024\n\020AES_DISTR"
   "IBUTION\020\002\022\024\n\020AUTO_CREATE_ROOM\020\003\022\026\n\022MANUA"
-  "L_CREATE_ROOM\020\004\022\017\n\013SEARCH_ROOM\020\005*\230\001\n\014Res"
+  "L_CREATE_ROOM\020\004\022\017\n\013SEARCH_ROOM\020\005*\250\001\n\014Res"
   "ponseCode\022\014\n\010LOGIN_OK\020\000\022\017\n\013REGISTER_OK\020\001"
   "\022\024\n\020RSA_DISTRIBUTION\020\002\022\021\n\rAES_VERIFY_OK\020"
   "\003\022\020\n\014JOIN_ROOM_OK\020\004\022\016\n\nSTART_GAME\020\005\022\022\n\016S"
-  "EARCH_ROOM_OK\020\006\022\n\n\006FAILED\020\007b\006proto3"
+  "EARCH_ROOM_OK\020\006\022\016\n\nDEAL_CARDS\020\007\022\n\n\006FAILE"
+  "D\020\010b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_information_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_information_2eproto = {
-    false, false, 475, descriptor_table_protodef_information_2eproto,
+    false, false, 491, descriptor_table_protodef_information_2eproto,
     "information.proto",
     &descriptor_table_information_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_information_2eproto::offsets,
@@ -127,6 +128,7 @@ bool ResponseCode_IsValid(int value) {
     case 5:
     case 6:
     case 7:
+    case 8:
       return true;
     default:
       return false;

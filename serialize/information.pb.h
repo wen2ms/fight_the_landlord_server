@@ -89,7 +89,8 @@ enum ResponseCode : int {
   JOIN_ROOM_OK = 4,
   START_GAME = 5,
   SEARCH_ROOM_OK = 6,
-  FAILED = 7,
+  DEAL_CARDS = 7,
+  FAILED = 8,
   ResponseCode_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   ResponseCode_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };

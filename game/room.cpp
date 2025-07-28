@@ -126,3 +126,18 @@ int Room::get_player_score(const std::string& user_name, const std::string& room
 
     return 0;
 }
+
+std::string Room::players_order(const std::string& room_name) {
+    int index = 0;
+    std::string data;
+    std::vector<std::pair<std::string, double>> output;
+
+    redis_->zrevrange(room_name, 0, - 1, std::back_inserter(output));
+    for (auto& [user_name, score] : output) {
+        data += user_name + "-" + std::to_string(index) + "-" + std::to_string(static_cast<int>(score)) + "#";
+
+        ++index;
+    }
+
+    return data;
+}

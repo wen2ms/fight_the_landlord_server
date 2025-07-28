@@ -24,6 +24,8 @@ class Room {
     std::string get_player_room_name(const std::string& user_name) const;
     int get_player_score(const std::string& user_name, const std::string& room_name) const;
 
+    std::string players_order(const std::string& room_name);
+
   private:
     static std::string get_new_room_name();
 

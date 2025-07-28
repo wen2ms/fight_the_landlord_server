@@ -17,7 +17,8 @@ enum ResponseCode {
     JOIN_ROOM_OK = 4;
     START_GAME = 5;
     SEARCH_ROOM_OK = 6;
-    FAILED = 7;
+    DEAL_CARDS = 7;
+    FAILED = 8;
 }
 
 message Information {

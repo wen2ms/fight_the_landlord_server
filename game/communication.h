@@ -6,6 +6,7 @@
 #include "codec.h"
 #include "mysql_connection.h"
 #include "room.h"
+#include "room_list.h"
 
 class Communication {
   public:
@@ -27,6 +28,11 @@ class Communication {
         disconnect_ = delete_func;
     }
 
+    void ready_for_play(const std::string& room_name, const std::string& data);
+    void deal_cards(UserMap players);
+    void init_cards();
+    std::pair<int, int> take_one_card();
+
   private:
     AesCrypto* aes_crypto_;
 
@@ -35,6 +41,8 @@ class Communication {
 
     MysqlConnection* mysql_conn_;
     Room* redis_;
+
+    std::multimap<int, int> cards_;
 };
 
 #endif  // COMMUNICATION_H

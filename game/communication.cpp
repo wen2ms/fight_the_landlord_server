@@ -44,6 +44,7 @@ void Communication::parse_request(Buffer* buf) {
     }
 
     Codec codec(data);
+    send_callback send_func = send_message_;
     std::shared_ptr<Message> ptr = codec.decode_msg();
     Message res_msg;
 
@@ -59,13 +60,15 @@ void Communication::parse_request(Buffer* buf) {
             break;
         case AUTO_CREATE_ROOM:
         case MANUAL_CREATE_ROOM:
+            handle_add_room(ptr.get(), res_msg);
+            send_func = std::bind(&Communication::ready_for_play, this, res_msg.room_name, std::placeholders::_1);
             break;
         default:
             break;
     }
 
     codec.reload(&res_msg);
-    send_message_(codec.encode_msg());
+    send_func(codec.encode_msg());
 }
 void Communication::handle_aes_distribution(const Message* req_msg, Message& res_msg) {
     RsaCrypto rsa;
@@ -188,6 +191,10 @@ void Communication::handle_add_room(const Message* req_msg, Message& res_msg) {
 
         redis_->update_player_score(room_name, user_name, score);
 
+        RoomList* room_list = RoomList::get_instance();
+
+        room_list->add_user(room_name, user_name, send_message_);
+
         res_msg.rescode = JOIN_ROOM_OK;
         res_msg.data1 = std::to_string(redis_->get_nums_players(room_name));
         res_msg.room_name = room_name;
@@ -195,4 +202,83 @@ void Communication::handle_add_room(const Message* req_msg, Message& res_msg) {
         res_msg.rescode = FAILED;
         res_msg.data1 = "Sorry, failed to join room, room is full";
     }
+}
+
+void Communication::ready_for_play(const std::string& room_name, const std::string& data) {
+    RoomList* room_list_ = RoomList::get_instance();
+    UserMap players = room_list_->get_players(room_name);
+
+    if (players.size() < 3) {
+        for (const auto& [user_name, callback] : players) {
+            callback(data);
+        }
+    } else {
+        deal_cards(players);
+
+        Message message;
+
+        message.rescode = START_GAME;
+        message.data1 = redis_->players_order(room_name);
+
+        Codec codec(&message);
+        for (const auto& [user_name, callback] : players) {
+            callback(codec.encode_msg());
+        }
+    }
+}
+
+void Communication::deal_cards(UserMap players) {
+    init_cards();
+
+    Message message;
+
+    std::string& all_cards = message.data1;
+    for (int i = 0; i < 51; ++i) {
+        auto [suit, rank] = take_one_card();
+        std::string sub_card = std::to_string(suit) + "-" + std::to_string(rank) + "#";
+
+        all_cards += sub_card;
+    }
+
+    std::string last_cards = message.data2;
+    for (const auto& [suit, rank] : cards_) {
+        std::string sub_card = std::to_string(suit) + "-" + std::to_string(rank) + "#";
+
+        last_cards += sub_card;
+    }
+
+    message.rescode = DEAL_CARDS;
+
+    Codec codec(&message);
+    for (const auto& player : players) {
+        player.second(codec.encode_msg());
+    }
+}
+
+void Communication::init_cards() {
+    cards_.clear();
+
+    for (int suit = 1; suit <= 4; ++suit) {
+        for (int rank = 1; rank <= 13; ++rank) {
+            cards_.emplace(suit, rank);
+        }
+    }
+
+    cards_.emplace(0, 14);
+    cards_.emplace(0, 15);
+}
+
+std::pair<int, int> Communication::take_one_card() {
+    std::random_device random_device;
+    std::mt19937 generator(random_device());
+    std::uniform_int_distribution<int> distribution(0, cards_.size() - 1);
+    int random = distribution(generator);
+    auto iter = cards_.begin();
+
+    for (int i = 0; i < random; ++i, ++iter) {
+    }
+
+    cards_.erase(iter);
+
+    return *iter;
 }
