@@ -128,7 +128,7 @@ int Room::get_player_score(const std::string& user_name, const std::string& room
 }
 
 std::string Room::players_order(const std::string& room_name) {
-    int index = 0;
+    int index = 1;
     std::string data;
     std::vector<std::pair<std::string, double>> output;
 

@@ -7,6 +7,7 @@ enum RequestCode {
     AUTO_CREATE_ROOM = 3;
     MANUAL_CREATE_ROOM = 4;
     SEARCH_ROOM = 5;
+    BID_LORD = 6;
 }
 
 enum ResponseCode {
@@ -18,7 +19,8 @@ enum ResponseCode {
     START_GAME = 5;
     SEARCH_ROOM_OK = 6;
     DEAL_CARDS = 7;
-    FAILED = 8;
+    OTHER_BID_LORD = 8;
+    FAILED = 9;
 }
 
 message Information {

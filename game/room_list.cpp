@@ -28,3 +28,15 @@ UserMap RoomList::get_players(const std::string& room_name) {
 
     return iter->second;
 }
+
+UserMap RoomList::get_remaining_players(const std::string& room_name, const std::string& user_name) {
+    UserMap players = get_players(room_name);
+    if (players.size() > 1) {
+        auto iter = players.find(user_name);
+        if (iter != players.end()) {
+            players.erase(iter);
+            return players;
+        }
+    }
+    return {};
+}

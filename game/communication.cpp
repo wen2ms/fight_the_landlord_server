@@ -63,6 +63,11 @@ void Communication::parse_request(Buffer* buf) {
             handle_add_room(ptr.get(), res_msg);
             send_func = std::bind(&Communication::ready_for_play, this, res_msg.room_name, std::placeholders::_1);
             break;
+        case BID_LORD:
+            res_msg.data1 = ptr->data1;
+            res_msg.rescode = OTHER_BID_LORD;
+            send_func =
+                std::bind(&Communication::notify_other_players, this, std::placeholders::_1, ptr->room_name, ptr->user_name);
         default:
             break;
     }
@@ -240,7 +245,7 @@ void Communication::deal_cards(UserMap players) {
         all_cards += sub_card;
     }
 
-    std::string last_cards = message.data2;
+    std::string& last_cards = message.data2;
     for (const auto& [suit, rank] : cards_) {
         std::string sub_card = std::to_string(suit) + "-" + std::to_string(rank) + "#";
 
@@ -281,4 +286,11 @@ std::pair<int, int> Communication::take_one_card() {
     cards_.erase(iter);
 
     return *iter;
+}
+
+void Communication::notify_other_players(const std::string& data, const std::string& room_name, const std::string& user_name) {
+    UserMap players = RoomList::get_instance()->get_remaining_players(room_name, user_name);
+    for (const auto& [user_name, callback] : players) {
+        callback(data);
+    }
 }

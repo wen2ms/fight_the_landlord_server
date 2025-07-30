@@ -19,6 +19,7 @@ class RoomList {
     void add_user(const std::string& room_name, const std::string& user_name, callback send_message);
 
     UserMap get_players(const std::string& room_name);
+    UserMap get_remaining_players(const std::string& room_name, const std::string& user_name);
 
   private:
     RoomList() = default;
