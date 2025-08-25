@@ -67,6 +67,7 @@ void Communication::parse_request(Buffer* buf) {
             res_msg.rescode = OTHER_BID_LORD;
             send_func =
                 std::bind(&Communication::notify_other_players, this, std::placeholders::_1, ptr->room_name, ptr->user_name);
+            break;
         case PLAY_A_HAND:
             res_msg.data1 = ptr->data1;
             res_msg.data2 = ptr->data2;
@@ -219,11 +220,10 @@ void Communication::ready_for_play(const std::string& room_name, const std::stri
     RoomList* room_list_ = RoomList::get_instance();
     UserMap players = room_list_->get_players(room_name);
 
-    if (players.size() < 3) {
-        for (const auto& [user_name, callback] : players) {
-            callback(data);
-        }
-    } else {
+    for (const auto& [user_name, callback] : players) {
+        callback(data);
+    }
+    if (players.size() == 3) {
         deal_cards(players);
 
         Message message;
