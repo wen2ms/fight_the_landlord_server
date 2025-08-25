@@ -6,6 +6,8 @@ find_package(OpenSSL REQUIRED)
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 include_directories(Ï
     ${PROJECT_SOURCE_DIR}/common
     ${PROJECT_SOURCE_DIR}/http

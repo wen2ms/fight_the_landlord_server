@@ -1,7 +1,6 @@
-#include "communication.h"
-
 #include <netinet/in.h>
 
+#include "communication.h"
 #include "json_parse.h"
 #include "log.h"
 #include "rsacrypto.h"
@@ -68,6 +67,13 @@ void Communication::parse_request(Buffer* buf) {
             res_msg.rescode = OTHER_BID_LORD;
             send_func =
                 std::bind(&Communication::notify_other_players, this, std::placeholders::_1, ptr->room_name, ptr->user_name);
+        case PLAY_A_HAND:
+            res_msg.data1 = ptr->data1;
+            res_msg.data2 = ptr->data2;
+            res_msg.rescode = OTHER_PLAY_A_HAND;
+            send_func =
+                std::bind(&Communication::notify_other_players, this, std::placeholders::_1, ptr->room_name, ptr->user_name);
+            break;
         default:
             break;
     }
