@@ -9,6 +9,7 @@ enum RequestCode {
     SEARCH_ROOM = 5;
     BID_LORD = 6;
     PLAY_A_HAND = 7;
+    GAME_OVER = 8;
 }
 
 enum ResponseCode {

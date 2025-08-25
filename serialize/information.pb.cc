@@ -71,21 +71,21 @@ const char descriptor_table_protodef_information_2eproto[] PROTOBUF_SECTION_VARI
   "ser_name\030\001 \001(\t\022\021\n\troom_name\030\002 \001(\t\022\r\n\005dat"
   "a1\030\003 \001(\t\022\r\n\005data2\030\004 \001(\t\022\r\n\005data3\030\005 \001(\t\022\035"
   "\n\007reqcode\030\006 \001(\0162\014.RequestCode\022\036\n\007rescode"
-  "\030\007 \001(\0162\r.ResponseCode*\237\001\n\013RequestCode\022\016\n"
+  "\030\007 \001(\0162\r.ResponseCode*\256\001\n\013RequestCode\022\016\n"
   "\nUSER_LOGIN\020\000\022\014\n\010REGISTER\020\001\022\024\n\020AES_DISTR"
   "IBUTION\020\002\022\024\n\020AUTO_CREATE_ROOM\020\003\022\026\n\022MANUA"
   "L_CREATE_ROOM\020\004\022\017\n\013SEARCH_ROOM\020\005\022\014\n\010BID_"
-  "LORD\020\006\022\017\n\013PLAY_A_HAND\020\007*\323\001\n\014ResponseCode"
-  "\022\014\n\010LOGIN_OK\020\000\022\017\n\013REGISTER_OK\020\001\022\024\n\020RSA_D"
-  "ISTRIBUTION\020\002\022\021\n\rAES_VERIFY_OK\020\003\022\020\n\014JOIN"
-  "_ROOM_OK\020\004\022\016\n\nSTART_GAME\020\005\022\022\n\016SEARCH_ROO"
-  "M_OK\020\006\022\016\n\nDEAL_CARDS\020\007\022\022\n\016OTHER_BID_LORD"
-  "\020\010\022\025\n\021OTHER_PLAY_A_HAND\020\t\022\n\n\006FAILED\020\nb\006p"
-  "roto3"
+  "LORD\020\006\022\017\n\013PLAY_A_HAND\020\007\022\r\n\tGAME_OVER\020\010*\323"
+  "\001\n\014ResponseCode\022\014\n\010LOGIN_OK\020\000\022\017\n\013REGISTE"
+  "R_OK\020\001\022\024\n\020RSA_DISTRIBUTION\020\002\022\021\n\rAES_VERI"
+  "FY_OK\020\003\022\020\n\014JOIN_ROOM_OK\020\004\022\016\n\nSTART_GAME\020"
+  "\005\022\022\n\016SEARCH_ROOM_OK\020\006\022\016\n\nDEAL_CARDS\020\007\022\022\n"
+  "\016OTHER_BID_LORD\020\010\022\025\n\021OTHER_PLAY_A_HAND\020\t"
+  "\022\n\n\006FAILED\020\nb\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_information_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_information_2eproto = {
-    false, false, 565, descriptor_table_protodef_information_2eproto,
+    false, false, 580, descriptor_table_protodef_information_2eproto,
     "information.proto",
     &descriptor_table_information_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_information_2eproto::offsets,
@@ -112,6 +112,7 @@ bool RequestCode_IsValid(int value) {
     case 5:
     case 6:
     case 7:
+    case 8:
       return true;
     default:
       return false;

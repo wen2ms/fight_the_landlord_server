@@ -61,12 +61,13 @@ enum RequestCode : int {
   SEARCH_ROOM = 5,
   BID_LORD = 6,
   PLAY_A_HAND = 7,
+  GAME_OVER = 8,
   RequestCode_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   RequestCode_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool RequestCode_IsValid(int value);
 constexpr RequestCode RequestCode_MIN = USER_LOGIN;
-constexpr RequestCode RequestCode_MAX = PLAY_A_HAND;
+constexpr RequestCode RequestCode_MAX = GAME_OVER;
 constexpr int RequestCode_ARRAYSIZE = RequestCode_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* RequestCode_descriptor();

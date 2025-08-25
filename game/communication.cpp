@@ -75,12 +75,23 @@ void Communication::parse_request(Buffer* buf) {
             send_func =
                 std::bind(&Communication::notify_other_players, this, std::placeholders::_1, ptr->room_name, ptr->user_name);
             break;
+        case GAME_OVER: {
+            int score = std::stoi(ptr->data1);
+            redis_->update_player_score(ptr->room_name, ptr->user_name, score);
+            char sql[1024];
+            sprintf(sql, "UPDATE information SET score = %d WHERE name = %s", score, ptr->user_name.data());
+            mysql_conn_->update(sql);
+            send_func = nullptr;
+            break;
+        }
         default:
             break;
     }
 
-    codec.reload(&res_msg);
-    send_func(codec.encode_msg());
+    if (send_func != nullptr) {
+        codec.reload(&res_msg);
+        send_func(codec.encode_msg());
+    }
 }
 void Communication::handle_aes_distribution(const Message* req_msg, Message& res_msg) {
     RsaCrypto rsa;
