@@ -26,6 +26,7 @@ class Room {
 
     std::string players_order(const std::string& room_name);
     void leave_room(const std::string& room_name, const std::string& user_name);
+    bool search_room(const std::string& room_name);
 
   private:
     static std::string get_new_room_name();

@@ -91,6 +91,12 @@ void Communication::parse_request(Buffer* buf) {
             restart_game(ptr.get());
             send_func = nullptr;
             break;
+        case SEARCH_ROOM: {
+            bool success = redis_->search_room(ptr->room_name);
+            res_msg.rescode = SEARCH_ROOM_OK;
+            res_msg.data1 = success ? "true" : "false";
+            break;
+        }
         default:
             break;
     }

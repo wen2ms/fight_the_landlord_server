@@ -158,3 +158,11 @@ void Room::leave_room(const std::string& room_name, const std::string& user_name
         redis_->srem(invalid_room_, room_name);
     }
 }
+
+bool Room::search_room(const std::string& room_name) {
+    bool success = redis_->sismember(double_room_, room_name);
+    if (!success) {
+        success = redis_->sismember(single_room_, room_name);
+    }
+    return success;
+}
