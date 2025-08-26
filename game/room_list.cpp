@@ -54,3 +54,11 @@ void RoomList::remove_player(const std::string& room_name, const std::string& us
         }
     }
 }
+
+void RoomList::remove_room(const std::string& room_name) {
+    std::lock_guard locker(mutex_);
+    auto iter = room_map_.find(room_name);
+    if (iter != room_map_.end()) {
+        room_map_.erase(iter);
+    }
+}

@@ -34,6 +34,8 @@ class Communication {
     std::pair<int, int> take_one_card();
 
     void notify_other_players(const std::string& data, const std::string& room_name, const std::string& user_name);
+    void restart_game(const Message* req_msg);
+    void start_game(const std::string& room_name, const UserMap& players);
 
   private:
     AesCrypto* aes_crypto_;

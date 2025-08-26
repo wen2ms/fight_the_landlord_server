@@ -1,8 +1,10 @@
 #include <netinet/in.h>
 
 #include "communication.h"
+#include "information.pb.h"
 #include "json_parse.h"
 #include "log.h"
+#include "room.h"
 #include "room_list.h"
 #include "rsacrypto.h"
 
@@ -85,6 +87,10 @@ void Communication::parse_request(Buffer* buf) {
             send_func = nullptr;
             break;
         }
+        case CONTINUE:
+            restart_game(ptr.get());
+            send_func = nullptr;
+            break;
         default:
             break;
     }
@@ -241,17 +247,7 @@ void Communication::ready_for_play(const std::string& room_name, const std::stri
         callback(data);
     }
     if (players.size() == 3) {
-        deal_cards(players);
-
-        Message message;
-
-        message.rescode = START_GAME;
-        message.data1 = redis_->players_order(room_name);
-
-        Codec codec(&message);
-        for (const auto& [user_name, callback] : players) {
-            callback(codec.encode_msg());
-        }
+        start_game(room_name, players);
     }
 }
 
@@ -315,5 +311,31 @@ void Communication::notify_other_players(const std::string& data, const std::str
     UserMap players = RoomList::get_instance()->get_remaining_players(room_name, user_name);
     for (const auto& [user_name, callback] : players) {
         callback(data);
+    }
+}
+
+void Communication::restart_game(const Message* req_msg) {
+    UserMap players = RoomList::get_instance()->get_players(req_msg->room_name);
+    if (players.size() == 3) {
+        RoomList::get_instance()->remove_room(req_msg->room_name);
+    }
+    RoomList::get_instance()->add_user(req_msg->room_name, req_msg->user_name, send_message_);
+    players = RoomList::get_instance()->get_players(req_msg->room_name);
+    if (players.size() == 3) {
+        start_game(req_msg->room_name, players);
+    }
+}
+
+void Communication::start_game(const std::string& room_name, const UserMap& players) {
+    deal_cards(players);
+
+    Message message;
+
+    message.rescode = START_GAME;
+    message.data1 = redis_->players_order(room_name);
+
+    Codec codec(&message);
+    for (const auto& [user_name, callback] : players) {
+        callback(codec.encode_msg());
     }
 }
