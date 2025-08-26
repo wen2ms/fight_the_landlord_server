@@ -1,11 +1,16 @@
-#include "room.h"
-
+#include <cstdint>
 #include <random>
 
 #include "json_parse.h"
 #include "log.h"
+#include "room.h"
 
-Room::Room() : redis_(nullptr), single_room_("single_room"), double_room_("double_room"), triple_room_("triple_room") {}
+Room::Room()
+    : redis_(nullptr),
+      single_room_("single_room"),
+      double_room_("double_room"),
+      triple_room_("triple_room"),
+      invalid_room_("invalid_room") {}
 
 Room::~Room() {
     if (redis_ != nullptr) {
@@ -63,17 +68,17 @@ std::string Room::join_room(const std::string& user_name) {
         room_name = get_new_room_name();
     } while (false);
 
-    join_room(user_name, room_name.value());
+    join_room(room_name.value(), user_name);
 
     return room_name.value();
 }
 
-bool Room::join_room(const std::string& user_name, const std::string& room_name) const {
+bool Room::join_room(const std::string& room_name, const std::string& user_name) const {
     if (redis_->zcard(room_name) >= 3) {
         return false;
     }
 
-    if (!redis_->exists(room_name)) {
+    if (redis_->exists(room_name) == 0) {
         redis_->sadd(single_room_, room_name);
     } else if (redis_->sismember(single_room_, room_name)) {
         redis_->smove(single_room_, double_room_, room_name);
@@ -117,7 +122,7 @@ std::string Room::get_player_room_name(const std::string& user_name) const {
     return {};
 }
 
-int Room::get_player_score(const std::string& user_name, const std::string& room_name) const {
+int Room::get_player_score(const std::string& room_name, const std::string& user_name) const {
     auto score = redis_->zscore(room_name, user_name);
 
     if (score.has_value()) {
@@ -132,7 +137,7 @@ std::string Room::players_order(const std::string& room_name) {
     std::string data;
     std::vector<std::pair<std::string, double>> output;
 
-    redis_->zrevrange(room_name, 0, - 1, std::back_inserter(output));
+    redis_->zrevrange(room_name, 0, -1, std::back_inserter(output));
     for (auto& [user_name, score] : output) {
         data += user_name + "-" + std::to_string(index) + "-" + std::to_string(static_cast<int>(score)) + "#";
 
@@ -140,4 +145,16 @@ std::string Room::players_order(const std::string& room_name) {
     }
 
     return data;
+}
+
+void Room::leave_room(const std::string& room_name, const std::string& user_name) {
+    if (redis_->sismember(triple_room_, room_name)) {
+        redis_->smove(triple_room_, invalid_room_, room_name);
+    }
+    redis_->zrem(room_name, user_name);
+    int64_t count = redis_->zcard(room_name);
+    if (count == 0) {
+        redis_->del(room_name);
+        redis_->srem(invalid_room_, room_name);
+    }
 }

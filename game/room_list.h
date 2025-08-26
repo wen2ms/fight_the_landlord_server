@@ -20,6 +20,7 @@ class RoomList {
 
     UserMap get_players(const std::string& room_name);
     UserMap get_remaining_players(const std::string& room_name, const std::string& user_name);
+    void remove_player(const std::string& room_name, const std::string& user_name);
 
   private:
     RoomList() = default;

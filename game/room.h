@@ -17,14 +17,15 @@ class Room {
     std::string rsa_key(const std::string& field);
 
     std::string join_room(const std::string& user_name);
-    bool join_room(const std::string& user_name, const std::string& room_name) const;
+    bool join_room(const std::string& room_name, const std::string& user_name) const;
 
     int get_nums_players(const std::string& room_name) const;
     void update_player_score(const std::string& room_name, const std::string& user_name, int score) const;
     std::string get_player_room_name(const std::string& user_name) const;
-    int get_player_score(const std::string& user_name, const std::string& room_name) const;
+    int get_player_score(const std::string& room_name, const std::string& user_name) const;
 
     std::string players_order(const std::string& room_name);
+    void leave_room(const std::string& room_name, const std::string& user_name);
 
   private:
     static std::string get_new_room_name();
@@ -33,6 +34,7 @@ class Room {
     const std::string single_room_;
     const std::string double_room_;
     const std::string triple_room_;
+    const std::string invalid_room_;
 };
 
 #endif  // ROOM_H

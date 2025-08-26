@@ -3,6 +3,7 @@
 #include "communication.h"
 #include "json_parse.h"
 #include "log.h"
+#include "room_list.h"
 #include "rsacrypto.h"
 
 Communication::Communication() : aes_crypto_(nullptr), mysql_conn_(new MysqlConnection) {
@@ -191,6 +192,11 @@ void Communication::handle_add_room(const Message* req_msg, Message& res_msg) {
     std::string user_name = req_msg->user_name;
     std::string old_room_name = redis_->get_player_room_name(user_name);
     int score = redis_->get_player_score(old_room_name, user_name);
+    if (!old_room_name.empty()) {
+        redis_->leave_room(old_room_name, req_msg->user_name);
+        RoomList::get_instance()->remove_player(old_room_name, req_msg->user_name);
+    }
+
     bool join_success = true;
     std::string room_name;
 
@@ -198,7 +204,7 @@ void Communication::handle_add_room(const Message* req_msg, Message& res_msg) {
         room_name = redis_->join_room(user_name);
     } else {
         room_name = req_msg->room_name;
-        join_success = redis_->join_room(user_name, room_name);
+        join_success = redis_->join_room(room_name, user_name);
     }
 
     if (join_success) {
