@@ -11,6 +11,7 @@ enum RequestCode {
     PLAY_A_HAND = 7;
     GAME_OVER = 8;
     CONTINUE = 9;
+    LEAVE_ROOM = 10;
 }
 
 enum ResponseCode {
@@ -24,7 +25,8 @@ enum ResponseCode {
     DEAL_CARDS = 7;
     OTHER_BID_LORD = 8;
     OTHER_PLAY_A_HAND = 9;
-    FAILED = 10;
+    OTHER_LEAVE_ROOM = 10;
+    FAILED = 11;
 }
 
 message Information {

@@ -97,6 +97,11 @@ void Communication::parse_request(Buffer* buf) {
             res_msg.data1 = success ? "true" : "false";
             break;
         }
+        case LEAVE_ROOM: {
+            handle_leave_room(ptr.get(), res_msg);
+            send_func = nullptr;
+            break;
+        }
         default:
             break;
     }
@@ -242,6 +247,18 @@ void Communication::handle_add_room(const Message* req_msg, Message& res_msg) {
     } else {
         res_msg.rescode = FAILED;
         res_msg.data1 = "Sorry, failed to join room, room is full";
+    }
+}
+
+void Communication::handle_leave_room(const Message* req_msg, Message& res_msg) {
+    redis_->leave_room(req_msg->room_name, req_msg->user_name);
+    RoomList::get_instance()->remove_player(req_msg->room_name, req_msg->user_name);
+    res_msg.rescode = OTHER_LEAVE_ROOM;
+    UserMap players = RoomList::get_instance()->get_players(req_msg->room_name);
+    res_msg.data1 = std::to_string(players.size());
+    for (const auto& [player, func] : players) {
+        Codec codec(&res_msg);
+        func(codec.encode_msg());
     }
 }
 
