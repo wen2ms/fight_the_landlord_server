@@ -12,6 +12,7 @@ enum RequestCode {
     GAME_OVER = 8;
     CONTINUE = 9;
     LEAVE_ROOM = 10;
+    EXIT = 11;
 }
 
 enum ResponseCode {

@@ -21,17 +21,11 @@ Communication::Communication() : aes_crypto_(nullptr), mysql_conn_(new MysqlConn
 }
 
 Communication::~Communication() {
-    if (redis_ != nullptr) {
-        delete redis_;
-    }
+    delete redis_;
 
-    if (aes_crypto_ != nullptr) {
-        delete aes_crypto_;
-    }
+    delete aes_crypto_;
 
-    if (mysql_conn_ != nullptr) {
-        delete mysql_conn_;
-    }
+    delete mysql_conn_;
 }
 
 void Communication::parse_request(Buffer* buf) {
@@ -102,6 +96,10 @@ void Communication::parse_request(Buffer* buf) {
             send_func = nullptr;
             break;
         }
+        case EXIT:
+            handle_exit(ptr.get());
+            send_func = nullptr;
+            break;
         default:
             break;
     }
@@ -260,6 +258,13 @@ void Communication::handle_leave_room(const Message* req_msg, Message& res_msg) 
         Codec codec(&res_msg);
         func(codec.encode_msg());
     }
+}
+
+void Communication::handle_exit(const Message* req_msg) {
+    char sql[10240] = {0};
+    sprintf(sql, "UPDATE information SET status = 0 WHERE name = '%s';", req_msg->user_name.data());
+    mysql_conn_->update(sql);
+    disconnect_();
 }
 
 void Communication::ready_for_play(const std::string& room_name, const std::string& data) {

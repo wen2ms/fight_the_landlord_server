@@ -23,6 +23,7 @@ class Communication {
     void handle_login(const Message* req_msg, Message& res_msg);
     void handle_add_room(const Message* req_msg, Message& res_msg);
     void handle_leave_room(const Message* req_msg, Message& res_msg);
+    void handle_exit(const Message* req_msg);
 
     void set_callbacks(const send_callback& send_func, const delete_callback& delete_func) {
         send_message_ = send_func;
