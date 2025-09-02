@@ -72,30 +72,21 @@ void Communication::parse_request(Buffer* buf) {
             send_func =
                 std::bind(&Communication::notify_other_players, this, std::placeholders::_1, ptr->room_name, ptr->user_name);
             break;
-        case GAME_OVER: {
-            int score = std::stoi(ptr->data1);
-            redis_->update_player_score(ptr->room_name, ptr->user_name, score);
-            char sql[1024];
-            sprintf(sql, "UPDATE information SET score = %d WHERE name = %s", score, ptr->user_name.data());
-            mysql_conn_->update(sql);
+        case GAME_OVER:
+            handle_gameover(ptr.get());
             send_func = nullptr;
             break;
-        }
         case CONTINUE:
             restart_game(ptr.get());
             send_func = nullptr;
             break;
-        case SEARCH_ROOM: {
-            bool success = redis_->search_room(ptr->room_name);
-            res_msg.rescode = SEARCH_ROOM_OK;
-            res_msg.data1 = success ? "true" : "false";
+        case SEARCH_ROOM:
+            handle_search_room(ptr.get(), res_msg);
             break;
-        }
-        case LEAVE_ROOM: {
+        case LEAVE_ROOM:
             handle_leave_room(ptr.get(), res_msg);
             send_func = nullptr;
             break;
-        }
         case EXIT:
             handle_exit(ptr.get());
             send_func = nullptr;
@@ -265,6 +256,20 @@ void Communication::handle_exit(const Message* req_msg) {
     sprintf(sql, "UPDATE information SET status = 0 WHERE name = '%s';", req_msg->user_name.data());
     mysql_conn_->update(sql);
     disconnect_();
+}
+
+void Communication::handle_gameover(const Message* req_msg) {
+    int score = std::stoi(req_msg->data1);
+    redis_->update_player_score(req_msg->room_name, req_msg->user_name, score);
+    char sql[1024];
+    sprintf(sql, "UPDATE information SET score = %d WHERE name = %s", score, req_msg->user_name.data());
+    mysql_conn_->update(sql);
+}
+
+void Communication::handle_search_room(const Message* req_msg, Message& res_msg) {
+    bool success = redis_->search_room(req_msg->room_name);
+    res_msg.rescode = SEARCH_ROOM_OK;
+    res_msg.data1 = success ? "true" : "false";
 }
 
 void Communication::ready_for_play(const std::string& room_name, const std::string& data) {
