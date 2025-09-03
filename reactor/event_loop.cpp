@@ -67,7 +67,7 @@ int EventLoop::event_activate(int fd, int event) {
 int EventLoop::add_task(Channel* channel, ElemType type) {
     mutex_.lock();
 
-    ChannelElement* node = new ChannelElement;
+    auto* node = new ChannelElement;
     node->channel = channel;
     node->type = type;
     task_queue_.push(node);

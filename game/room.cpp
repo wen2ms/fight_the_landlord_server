@@ -13,10 +13,8 @@ Room::Room()
       invalid_room_("invalid_room") {}
 
 Room::~Room() {
-    if (redis_ != nullptr) {
-        delete redis_;
-        redis_ = nullptr;
-    }
+    delete redis_;
+    redis_ = nullptr;
 }
 
 bool Room::init_environment() {

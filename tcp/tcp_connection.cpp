@@ -49,13 +49,12 @@ void TcpConnection::add_write_task(const std::string& data) const {
 }
 
 void TcpConnection::add_delete_task() {
-    ev_loop_->add_task(channel_, ElemType::kDelete);
-
     DEBUG("Disconnect to client, conn_name = %s", name_.data());
+    ev_loop_->add_task(channel_, ElemType::kDelete);
 }
 
 int TcpConnection::process_read(void* arg) {
-    TcpConnection* conn = static_cast<TcpConnection*>(arg);
+    auto* conn = static_cast<TcpConnection*>(arg);
 
     int socket = conn->channel_->get_socket();
     int count = conn->read_buf_->socket_read(socket);
@@ -91,11 +90,8 @@ int TcpConnection::process_write(void* arg) {
 }
 
 int TcpConnection::destroy(void* arg) {
-    TcpConnection* conn = static_cast<TcpConnection*>(arg);
-    if (conn != nullptr) {
-        delete conn;
-    }
-
+    auto* conn = static_cast<TcpConnection*>(arg);
+    delete conn;
     return 0;
 }
 void TcpConnection::prepare_secret_key() {

@@ -22,10 +22,13 @@ Communication::Communication() : aes_crypto_(nullptr), mysql_conn_(new MysqlConn
 
 Communication::~Communication() {
     delete redis_;
+    redis_ = nullptr;
 
     delete aes_crypto_;
+    aes_crypto_ = nullptr;
 
     delete mysql_conn_;
+    mysql_conn_ = nullptr;
 }
 
 void Communication::parse_request(Buffer* buf) {
@@ -262,7 +265,7 @@ void Communication::handle_gameover(const Message* req_msg) {
     int score = std::stoi(req_msg->data1);
     redis_->update_player_score(req_msg->room_name, req_msg->user_name, score);
     char sql[1024];
-    sprintf(sql, "UPDATE information SET score = %d WHERE name = %s", score, req_msg->user_name.data());
+    sprintf(sql, "UPDATE information SET score = %d WHERE name = '%s';", score, req_msg->user_name.data());
     mysql_conn_->update(sql);
 }
 

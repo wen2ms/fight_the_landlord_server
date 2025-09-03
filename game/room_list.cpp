@@ -20,7 +20,7 @@ void RoomList::add_user(const std::string& room_name, const std::string& user_na
 
 UserMap RoomList::get_players(const std::string& room_name) {
     std::lock_guard locker(mutex_);
-    const auto iter = room_map_.find(room_name);
+    auto iter = room_map_.find(room_name);
 
     if (iter == room_map_.end()) {
         return {};
@@ -45,7 +45,7 @@ void RoomList::remove_player(const std::string& room_name, const std::string& us
     std::lock_guard locker(mutex_);
     auto iter = room_map_.find(room_name);
     if (iter != room_map_.end()) {
-        UserMap players = iter->second;
+        UserMap& players = iter->second;
         auto player = players.find(user_name);
         if (player != players.end() && players.size() > 1) {
             iter->second.erase(player);
