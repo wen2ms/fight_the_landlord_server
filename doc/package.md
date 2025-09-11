@@ -112,3 +112,47 @@ for (auto& [user_name, score] : output) {
 
 然后游戏就进入了发牌阶段`GameControl::GameStatus::kDealingCard`，这里是动画效果上的发牌，实际上服务端与客户端数据的通信已经结束了，发牌动画实际上是通过`timer_->start(10);`定时器的触发完成的。当卡牌只剩三张时`game_control_->take_remaining_cards().cards_count() == 3`，游戏就会进入到`GameControl::GameStatus::kBiddingLord`叫地主阶段了。这里有一个细节是进入斗地主阶段时，三张在窗口中心的底牌会隐藏，当叫地主结束后就会显示到窗口正上方。
 
+##### 2.8 抢地主
+
+在网络模式`DataManager::kOnline`下，当前用户点击不同分数按钮后，客户端就会发送一个消息给服务端`msg.user_name = user_name; msg.room_name = room_name; msg.data1 = points; msg.reqcode = BID_LORD;`。同时窗口上就会隐藏分数按钮，并通过`game_control_`的`GameControl::notify_bid_lord`这个信号来控制主界面动画和音效，如果是当前玩家是第一个选择大于0的分数的，那么他就是叫地主，之后大于他的分数的玩家就是抢地主。
+
+这里其实涉及到不同线程，主线程中的`game_control_`负责控制游戏逻辑，也就是当前最高的分数，当前的地主以及当前已经抢地主的人数，每当有一个玩家抢地主的时候，`game_control_`都会更新这个数据，当最后一个玩家抢完地主或有一个玩家的分数直接为3分，就会开始设置每个玩家的身份，同时将剩余的三张牌放入到地主的手牌中，同时在1秒后，游戏状态就会变成`GameStatus::kPlayingAHand`，同时设置地主为当前玩家，状态变为`PlayerStatus::kPreparePlayAHand`，等待当前玩家出牌`current_player_->prepare_play_a_hand()`。
+
+而另外的一个`Communication`线程是用来接收刚刚发送的抢地主分数消息的服务端的响应。每个客户端都有一个自己的`Communication`线程在线程池中，同时通过一个线程池`QThreadPool::globalInstance()->start(task)`来管理。而每个客户端中的除自己外的另外两个玩家的抢地主和出牌也都是独立的线程，通过线程池来维护。
+
+服务端处理抢地主消息的方式和处理创建房间的消息是类似的，`res_msg.data1 = points; res_msg.rescode = OTHER_BID_LORD;`，它是通过`notify_other_players`把当前玩家的分数发送给同一个房间内另外两个玩家的，这里也是通过每个玩家的连接对应的`send_message_`来回调发送的。注意这里不需要指定房间名和玩家名，因为每个客户端中当前叫地主的玩家是同一个，叫地主的顺序在加入房间后就确定了，而叫地主的顺序控制由每个客户端的`game_control_`来控制。
+
+客户端在收到`OTHER_BID_LORD`的消息后，就会将分数封装成一个`Task`对象，然后加入当前游戏的任务队列中`TaskQueue`。然后其他两个玩家，实际上对应的是`Robot`类，但是会根据游戏模式做出不同行为。这两个玩家从任务队列中取出这个任务的分数，同时发出抢地主的信号，`GameControl::on_bid_lord`就来处理了。
+
+##### 2.9 出牌阶段
+
+出牌阶段三张底牌会隐藏，并且会显示到窗口正上方。同时根据玩家身份加载玩家的角色头像。如果用户是当前出牌玩家，一旦进入出牌阶段就会触发倒计时，并出现动画和倒计时音效。最重要的处理是选牌，如果是除出牌阶段之外的情况这个`CardPanel`也就是卡牌都不会响应，如果卡牌的所有者不是当前用户，而在出牌阶段，玩家就可以通过鼠标左键进行连续选择卡牌，右键或者点击出牌按钮都可以出牌。
+
+选中的牌`QSet<CardPanel*> selected_cards_`会先转化`Cards`对象，然后通过`PlayAHand hand(cards);`来封装，这个类就是进行的牌型判断，以及牌的大小关系判定，如果一个牌型是未知，例如一个2一个3等等，或者是选中的牌比当前的`game_control_->pending_cards()`小，就不进行后续处理。否则当前玩家会将打出的牌从自己的卡牌中删除，并发送信号让`GameGontrol::on_play_a_hand`处理。
+
+`on_play_a_hand`首先会发送信号给主界面，然后根据牌型积累倍数，切换下一个玩家，同时当前玩家的牌为空时，判断游戏结束，并根据倍数和玩家角色设置当局的分数，并更新游戏状态为`GameControl::PlayerStatus::kWin`。如果游戏没有结束，那么更新当前玩家状态为`GameControl::PlayerStatus::kPreparePlayAHand:`。主界面会根据之前的出牌玩家是否是当前玩家来设置按钮的选项，如果是就不能跳过，否则可以跳过。
+
+当主界面接收到`notify_play_a_hand`信号后，根据不同牌型进行处理，例如飞机，炸弹的音效，男性或者女性的音效，以及重新更新绘制主窗口中的牌，并当玩家剩余牌为2张或1张时发出音效。
+
+最后`MainWindow::notify_other_play_a_hand`会将消息发送给服务端，`msg.user_name = user_name; msg.room_name = room_name; data1 = cards.cards_count(); msg.data2 = card_list; msg.reqcode = PLAY_A_HAND;`这里的`card_list`实际上是通过重载`<<`将牌的信息输入`in << suit << rank;`
+
+服务端在接受到消息后，也回复消息给剩余两个玩家，`res_msg.data1 = data1; res_msg.data2 = data2;`数据没有变化只是进行了转发，并且这里转发的函数和抢地主调用的都是`notify_other_players`。
+
+如果当前用户不是当前玩家，它会从任务队列中取出一个`Task`再出牌。这里的任务队列的处理和抢地主阶段是一样的，都是当没有任务的时候通过条件变量进行阻塞。而任务的加入就是客户端接受到的服务端的消息，通过`data1`中的牌的数量和`data2`将`Cards`封装为`Task`放入任务队列中。
+
+##### 2.10 游戏结束
+
+游戏中玩家的状态变为`GameControl::PlayerStatus::kWin`后，会将所有卡牌显示出来，并显示出分数面板，同时发送一个消息给服务端，`.user_name = user_name, .room_name = room_name, .data1 = user_player->score(), .reqcode = GAME_OVER;`
+
+服务端收到`GAME_OVER`后，首先会在`Redis`中更新分数`redis_->zadd(room_name, user_name, score);`并在`mysql`中也进行`UPDATE information SET score = %d WHERE name = user_name;`此时不会再发送消息给客户端`send_func = nullptr;`。
+
+##### 2.11 继续游戏
+
+在分数面板中，用户可以点击继续游戏，如果是在手动创建房间中，客户端会发送`reqcode = CONTINUE;`否则在自动创建房间下，会发送`reqcode = AUTO_CREATE_ROOM;`又会重新加入一个新的房间。当然如果是单机模式下，游戏就会重新继续发牌了。
+
+当服务端接受到`CONTINUE`消息后，为了让游戏重新开始，需要模拟重新加入房间的过程，因此服务端清空当前的房间`RoomList::get_instance()->remove_room(req_msg->room_name);`然后每次收到不同客户端的`CONTINUE`后依次加入这个房间，直到人数为3后，就开始游戏，重新发牌。
+
+
+
+
+
