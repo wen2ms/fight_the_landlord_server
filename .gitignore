@@ -10,7 +10,3 @@ build/
 
 # Clangd
 .cache
-
-# config
-config
-main.cpp

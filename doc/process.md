@@ -1,4 +1,4 @@
-#### 1. 报文格式
+#### 报文格式
 
 ```proto
 message Information {
@@ -12,15 +12,15 @@ message Information {
 }
 ```
 
-#### 2. 通信流程
+#### 通信流程
 
-##### 2.1 建立连接和非对称加密
+##### 1. 建立连接和非对称加密
 
 首先客户端向服务端发起连接连接请求，然后服务端收到后，就会将`RSA`已经生成好的`public_key`，长度为`RsaCrypto::kBits2k = 2048`，经过数字签名的`public_key`发送给客户端，这些数据都是通过`Base64`编码之后的。
 
 `data1 = public_key; data2 = sign; rescode = RSA_DISTRIBUTION;` 。
 
-##### 2.2 对称加密
+##### 2. 对称加密
 
 客户端收到服务端的消息后，解码并验证数字签名，成功后向服务端发送使用`RSA`公钥加密后的`AES`私钥，以及`AES`私钥通过`QCryptographicHash::Sha224`得到的`hash`。
 
@@ -30,7 +30,7 @@ message Information {
 
 `rescode = AES_VERIFY_OK;`
 
-##### 2.3 登录与注册
+##### 3. 登录与注册
 
 当建立好加密连接后，客户端将注册或登录的参数发送给服务端。注册或登录时会首先都会通过正则校验检验信息是否合法，然后将信息发送给服务端。
 
@@ -40,7 +40,7 @@ message Information {
 
 这里都是通过`QCryptographicHash::hash(password, QCryptographicHash::Sha224)`进行`hash`。
 
-##### 2.4 更新数据库
+##### 4. 更新数据库
 
 服务端接收到注册或者登录消息，解码后更新数据库。
 
@@ -57,7 +57,7 @@ user.name = user_name AND user.password = password;
 
 客户端收到`LOGIN_OK`或者`REGISTER_OK`后就会跳转到选择游戏模式界面中了。
 
-##### 2.5 加入房间
+##### 5. 加入房间
 
 客户端的游戏模式有单机模式`GameModeType::kStandalone`和网络模式`GameModeType::kOnline`，只有在网络模式下，客户端才会和服务器进行游戏数据的通信。加入房间有三种方式，自动创建房间，手动搜索房间并加入，手动创建房间。
 
@@ -81,7 +81,7 @@ user.name = user_name AND user.password = password;
 
 其实对于搜索房间，不同的点在于客户端发送的`reqcode = SEARCH_ROOM;`。而服务端会首先在`Redis`中`sismember(double_room_, room_name)`，然后再查询有没有对应的单人间，也就是说如果没有这个房间，或者这个房间已满，都会搜索失败。这里注意的是无论成功或失败，服务端响应都是`rescode = SEARCH_ROOM_OK`，而`data1 = success ? "true" : "false";`来表明是否查询成功。
 
-##### 2.6 发牌与玩家顺序
+##### 6. 发牌与玩家顺序
 
 `deal_cards`首先会将54张牌的对应点数和花色写入一个`std::multimap<int, int> cards_;`。然后就会将前51张牌按照
 
@@ -102,7 +102,7 @@ for (auto& [user_name, score] : output) {
 }
 ```
 
-##### 2.7 开始游戏
+##### 7. 开始游戏
 
 这个阶段客户端接收到服务端的响应包括`JOIN_ROOM_OK, DEAL_CARDS, START_GAME`。
 
@@ -112,7 +112,7 @@ for (auto& [user_name, score] : output) {
 
 然后游戏就进入了发牌阶段`GameControl::GameStatus::kDealingCard`，这里是动画效果上的发牌，实际上服务端与客户端数据的通信已经结束了，发牌动画实际上是通过`timer_->start(10);`定时器的触发完成的。当卡牌只剩三张时`game_control_->take_remaining_cards().cards_count() == 3`，游戏就会进入到`GameControl::GameStatus::kBiddingLord`叫地主阶段了。这里有一个细节是进入斗地主阶段时，三张在窗口中心的底牌会隐藏，当叫地主结束后就会显示到窗口正上方。
 
-##### 2.8 抢地主
+##### 8. 抢地主
 
 在网络模式`DataManager::kOnline`下，当前用户点击不同分数按钮后，客户端就会发送一个消息给服务端`msg.user_name = user_name; msg.room_name = room_name; msg.data1 = points; msg.reqcode = BID_LORD;`。同时窗口上就会隐藏分数按钮，并通过`game_control_`的`GameControl::notify_bid_lord`这个信号来控制主界面动画和音效，如果是当前玩家是第一个选择大于0的分数的，那么他就是叫地主，之后大于他的分数的玩家就是抢地主。
 
@@ -124,7 +124,7 @@ for (auto& [user_name, score] : output) {
 
 客户端在收到`OTHER_BID_LORD`的消息后，就会将分数封装成一个`Task`对象，然后加入当前游戏的任务队列中`TaskQueue`。然后其他两个玩家，实际上对应的是`Robot`类，但是会根据游戏模式做出不同行为。这两个玩家从任务队列中取出这个任务的分数，同时发出抢地主的信号，`GameControl::on_bid_lord`就来处理了。
 
-##### 2.9 出牌阶段
+##### 9 出牌阶段
 
 出牌阶段三张底牌会隐藏，并且会显示到窗口正上方。同时根据玩家身份加载玩家的角色头像。如果用户是当前出牌玩家，一旦进入出牌阶段就会触发倒计时，并出现动画和倒计时音效。最重要的处理是选牌，如果是除出牌阶段之外的情况这个`CardPanel`也就是卡牌都不会响应，如果卡牌的所有者不是当前用户，而在出牌阶段，玩家就可以通过鼠标左键进行连续选择卡牌，右键或者点击出牌按钮都可以出牌。
 
@@ -140,25 +140,25 @@ for (auto& [user_name, score] : output) {
 
 如果当前用户不是当前玩家，它会从任务队列中取出一个`Task`再出牌。这里的任务队列的处理和抢地主阶段是一样的，都是当没有任务的时候通过条件变量进行阻塞。而任务的加入就是客户端接受到的服务端的消息，通过`data1`中的牌的数量和`data2`将`Cards`封装为`Task`放入任务队列中。
 
-##### 2.10 游戏结束
+##### 10. 游戏结束
 
 游戏中玩家的状态变为`GameControl::PlayerStatus::kWin`后，会将所有卡牌显示出来，并显示出分数面板，同时发送一个消息给服务端，`.user_name = user_name, .room_name = room_name, .data1 = user_player->score(), .reqcode = GAME_OVER;`
 
 服务端收到`GAME_OVER`后，首先会在`Redis`中更新分数`redis_->zadd(room_name, user_name, score);`并在`mysql`中也进行`UPDATE information SET score = %d WHERE name = user_name;`此时不会再发送消息给客户端`send_func = nullptr;`。
 
-##### 2.11 继续游戏
+##### 11. 继续游戏
 
 在分数面板中，用户可以点击继续游戏，如果是在手动创建房间中，客户端会发送`reqcode = CONTINUE;`否则在自动创建房间下，会发送`reqcode = AUTO_CREATE_ROOM;`又会重新加入一个新的房间。当然如果是单机模式下，游戏就会重新继续发牌了。
 
 当服务端接受到`CONTINUE`消息后，为了让游戏重新开始，需要模拟重新加入房间的过程，因此服务端清空当前的房间`RoomList::get_instance()->remove_room(req_msg->room_name);`然后每次收到不同客户端的`CONTINUE`后依次加入这个房间，直到人数为3后，就开始游戏，重新发牌。
 
-##### 2.12 离开房间
+##### 12. 离开房间
 
 当玩家关闭主窗口后，就认为是离开游戏了，此时客户端就会向服务端发送一条消息`reqcode = LEAVE_ROOM; user_name = user_name; room_name = room_name;`，窗口回到`GameMode`窗口。
 
 服务端接受到这个消息时，首先会判断这个房间是否为3人间，当第一个人退出的时候，这个房间就是三人间。如果是，就会将这个房间从有效房间中移除`redis_->smove(triple_room_, invalid_room_, room_name);`。然后无论哪种情况都会直接将该用户从房间中删除`zrem(room_name, user_name);`，并根据当前房间剩余人数`zcard(room_name)`如果为0的话，就直接`del(room_name); srem(invalid_room, room_name);`接着也会删除`RoomList`相应房间的用户。最后定义`rescode = OTHER_LEAVE_ROOM; data1 = players.size();`发送给客户端。客户端在接收到`OTHER_LEAVE_ROOM`后就会在`GameMode`窗口中重新更新当前玩家的人数。
 
-##### 2.13 退出游戏
+##### 13 退出游戏
 
 当玩家关闭`GameMode`窗口后，就会退回到单机模式和网络模式的选择界面中，如果再次关闭，整个游戏进程就会退出，并且在退出前客户端会发送一个`reqcode = EXIT; user_name = user_name; room_name = room_name = room_name;`给服务端，同时关闭`TcpSocket`。
 
