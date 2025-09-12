@@ -152,7 +152,23 @@ for (auto& [user_name, score] : output) {
 
 当服务端接受到`CONTINUE`消息后，为了让游戏重新开始，需要模拟重新加入房间的过程，因此服务端清空当前的房间`RoomList::get_instance()->remove_room(req_msg->room_name);`然后每次收到不同客户端的`CONTINUE`后依次加入这个房间，直到人数为3后，就开始游戏，重新发牌。
 
+##### 2.12 离开房间
 
+当玩家关闭主窗口后，就认为是离开游戏了，此时客户端就会向服务端发送一条消息`reqcode = LEAVE_ROOM; user_name = user_name; room_name = room_name;`，窗口回到`GameMode`窗口。
 
+服务端接受到这个消息时，首先会判断这个房间是否为3人间，当第一个人退出的时候，这个房间就是三人间。如果是，就会将这个房间从有效房间中移除`redis_->smove(triple_room_, invalid_room_, room_name);`。然后无论哪种情况都会直接将该用户从房间中删除`zrem(room_name, user_name);`，并根据当前房间剩余人数`zcard(room_name)`如果为0的话，就直接`del(room_name); srem(invalid_room, room_name);`接着也会删除`RoomList`相应房间的用户。最后定义`rescode = OTHER_LEAVE_ROOM; data1 = players.size();`发送给客户端。客户端在接收到`OTHER_LEAVE_ROOM`后就会在`GameMode`窗口中重新更新当前玩家的人数。
 
+##### 2.13 退出游戏
+
+当玩家关闭`GameMode`窗口后，就会退回到单机模式和网络模式的选择界面中，如果再次关闭，整个游戏进程就会退出，并且在退出前客户端会发送一个`reqcode = EXIT; user_name = user_name; room_name = room_name = room_name;`给服务端，同时关闭`TcpSocket`。
+
+服务端在接收到`EXIT`后就会在`mysql`中更新用户当前的状态，同时也将`add_delete_task`加入对应`TcpConnection`的`EventLoop`的任务队列中，最终在对应的`dispatcher_`中调用`remove`，例如在`EpollDispatcher`中`epoll_op(EPOLL_CTL_DEL)`，`SelectDispatcher`中删除`FD_CLR(channel_->get_socket(), &read_set_);`。在`PollDispatcher`中在`fds_ = pollfd`数组中找到对应的`socket`，定义
+
+```cpp
+fds_[i].events = 0;
+fds_[i].revents = 0;
+fds_[i].fd = -1;
+```
+
+最后都需要再删除对应`channel_`的`TcpConnection`，至此两端都退出了。
 
